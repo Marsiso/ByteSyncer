@@ -1,12 +1,25 @@
+using ByteSyncer.IdentityProvider;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+IServiceCollection services = builder.Services;
+IConfiguration configuration = builder.Configuration;
+IWebHostEnvironment environment = builder.Environment;
+
+services.AddRazorPages();
+services.AddDbSession(configuration, environment);
 
 WebApplication application = builder.Build();
 
-if (!application.Environment.IsDevelopment())
+application.UseMigrations();
+
+if (environment.IsDevelopment())
 {
-    application.UseExceptionHandler("/Error");
+    application.UseDeveloperExceptionPage();
+}
+else
+{
+    application.UseExceptionHandler("/Error"); le
     application.UseHsts();
 }
 
