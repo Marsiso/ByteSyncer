@@ -19,7 +19,7 @@ if (environment.IsDevelopment())
 }
 else
 {
-    application.UseExceptionHandler("/Error"); le
+    application.UseExceptionHandler("/Error");
     application.UseHsts();
 }
 
