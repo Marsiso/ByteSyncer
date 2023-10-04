@@ -1,5 +1,6 @@
 ﻿using ByteSyncer.Data.EF;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ByteSyncer.IdentityProvider
 {
@@ -7,6 +8,8 @@ namespace ByteSyncer.IdentityProvider
     {
         public static IServiceCollection AddDbSession(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
+            services.AddTransient<ISaveChangesInterceptor, AuditTrailInterceptor>();
+
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))

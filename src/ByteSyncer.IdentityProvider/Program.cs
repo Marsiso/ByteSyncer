@@ -7,7 +7,9 @@ IConfiguration configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
 
 services.AddRazorPages();
-services.AddDbSession(configuration, environment);
+
+services.AddSingleton(configuration)
+        .AddDbSession(configuration, environment);
 
 WebApplication application = builder.Build();
 
