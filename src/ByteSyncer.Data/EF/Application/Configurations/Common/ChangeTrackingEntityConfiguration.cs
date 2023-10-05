@@ -10,12 +10,6 @@ namespace ByteSyncer.Data.EF.Application.Configurations.Common
         {
             base.Configure(builder);
 
-            builder.Property(entity => entity.DateCreated)
-                   .HasColumnType("timestamp without time zone");
-
-            builder.Property(entity => entity.DateUpdated)
-                   .HasColumnType("timestamp without time zone");
-
             builder.HasOne(entity => entity.UserCreatedBy)
                    .WithMany()
                    .HasForeignKey(entity => entity.CreatedBy)

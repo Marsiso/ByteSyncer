@@ -1,4 +1,12 @@
+using System.Reflection;
+using ByteSyncer.Application.Application.Mappings;
+using ByteSyncer.Application.Application.Validators;
+using ByteSyncer.Application.Options;
+using ByteSyncer.Application.Services;
+using ByteSyncer.Core.Application.Commands;
+using ByteSyncer.Domain.Contracts;
 using ByteSyncer.IdentityProvider;
+using FluentValidation;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +16,21 @@ IWebHostEnvironment environment = builder.Environment;
 
 services.AddRazorPages();
 
+services.AddOptions<PasswordProtectorOptions>()
+        .Configure(options =>
+        {
+            options.Pepper = "Pepper";
+            options.WorkFactor = 12;
+        })
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+
 services.AddSingleton(configuration)
-        .AddDbSession(configuration, environment);
+        .AddDbSession(configuration, environment)
+        .AddAutoMapper(typeof(UserProfile))
+        .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetAssembly(typeof(RegisterCommand))))
+        .AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(RegisterCommandValidator)))
+        .AddSingleton<IPasswordProtector, PasswordProtector>();
 
 WebApplication application = builder.Build();
 
@@ -21,16 +42,15 @@ if (environment.IsDevelopment())
 }
 else
 {
-    application.UseExceptionHandler("/Error");
-    application.UseHsts();
+    application.UseExceptionHandler("/Error")
+               .UseHsts();
 }
 
-application.UseHttpsRedirection();
-application.UseStaticFiles();
+application.UseHttpsRedirection()
+           .UseStaticFiles();
 
-application.UseRouting();
-
-application.UseAuthorization();
+application.UseRouting()
+           .UseAuthorization();
 
 application.MapRazorPages();
 

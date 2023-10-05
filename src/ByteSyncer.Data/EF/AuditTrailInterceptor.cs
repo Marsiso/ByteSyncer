@@ -20,6 +20,18 @@ namespace ByteSyncer.Data.EF
             return base.SavingChanges(eventData, result);
         }
 
+        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            if (eventData.Context is not DataContext context)
+            {
+                return new(result);
+            }
+
+            OnBeforeSavedChanges(context);
+
+            return new(result);
+        }
+
         public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
         {
             if (eventData.Context is not DataContext context)
@@ -30,6 +42,18 @@ namespace ByteSyncer.Data.EF
             OnAfterSavedChanges(context);
 
             return base.SavedChanges(eventData, result);
+        }
+
+        public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+        {
+            if (eventData.Context is not DataContext context)
+            {
+                return new(result);
+            }
+
+            OnAfterSavedChanges(context);
+
+            return new(result);
         }
 
         private static void OnBeforeSavedChanges(DataContext context)

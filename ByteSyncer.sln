@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.Data", "src\Byte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.Application", "src\ByteSyncer.Application\ByteSyncer.Application.csproj", "{53379668-672A-4D69-AFAD-06784FD0A526}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteSyncer.IdentityProvider", "src\ByteSyncer.IdentityProvider\ByteSyncer.IdentityProvider.csproj", "{F9BF9920-E98F-4354-A615-AC0DA215BDBF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.IdentityProvider", "src\ByteSyncer.IdentityProvider\ByteSyncer.IdentityProvider.csproj", "{F9BF9920-E98F-4354-A615-AC0DA215BDBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteSyncer.Web", "src\ByteSyncer.Web\ByteSyncer.Web.csproj", "{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.Web", "src\ByteSyncer.Web\ByteSyncer.Web.csproj", "{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

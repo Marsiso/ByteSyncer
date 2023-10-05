@@ -1,0 +1,32 @@
+﻿@page
+@model ByteSyncer.IdentityProvider.Pages.Authentication.RegisterModel
+@{
+}
+
+<h1>Register</h1>
+
+<form method="post">
+    <table>
+        <thead>
+            <tr>
+                <td>Email</td>
+                <td>Given name</td>
+                <td>Family name</td>
+                <td>Password</td>
+                <td>Password repeat</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="email" asp-for="Form.Email" /></td>
+                <td><input type="text" asp-for="Form.GivenName" /></td>
+                <td><input type="text" asp-for="Form.FamilyName" /></td>
+                <td><input type="password" asp-for="Form.Password" /></td>
+                <td><input type="password" asp-for="Form.PasswordRepeat" /></td>
+            </tr>
+            <tr>
+                <td colspan="5"><button type="submit">Register</button></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
