@@ -10,6 +10,8 @@ namespace ByteSyncer.Data.EF.Application.Configurations.Common
         {
             builder.HasKey(entity => entity.ID);
 
+            builder.HasIndex(entity => entity.IsActive);
+
             builder.HasQueryFilter(entity => entity.IsActive);
         }
     }

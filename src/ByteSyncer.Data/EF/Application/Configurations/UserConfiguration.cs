@@ -16,6 +16,9 @@ namespace ByteSyncer.Data.EF.Application.Configurations
             builder.HasIndex(user => user.Email)
                    .IsUnique();
 
+            builder.HasIndex(user => user.RootFolderID)
+                   .IsUnique();
+
             builder.Property(user => user.Email)
                    .HasMaxLength(256);
 
@@ -32,6 +35,21 @@ namespace ByteSyncer.Data.EF.Application.Configurations
 
             builder.Property(user => user.PasswordSalt)
                    .HasMaxLength(512);
+
+            builder.Property(user => user.SecurityStamp)
+                   .HasMaxLength(512);
+
+            builder.HasOne(user => user.RootFolder)
+                   .WithOne()
+                   .HasForeignKey<User>(user => user.RootFolderID)
+                   .IsRequired()
+                   .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasMany(role => role.UserRoles)
+                   .WithOne(userRole => userRole.User)
+                   .HasForeignKey(userRole => userRole.UserID)
+                   .IsRequired()
+                   .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
