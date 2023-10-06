@@ -5,37 +5,50 @@
 	var inputClass = "form-input block shadow appearance-none border rounded mt-1 px-4 py-1 w-full";
 }
 
-<div class="w-full max-w-[30rem]">
-	<h1 class="text-3xl font-semibold mb-4">Register</h1>
-	<form method="post">
-		<div class="grid grid-cols-1 gap-4">
-			@RenderInput("Email", "email", "Form.Email")
-			@RenderInput("Given name", "text", "Form.GivenName")
-			@RenderInput("Family name", "text", "Form.FamilyName")
-			@RenderInput("Password", "password", "Form.Password")
-			@RenderInput("Password repeat", "password", "Form.PasswordRepeat")
+<h1 class="text-3xl font-semibold mb-4">Registrace</h1>
 
-			<div>
-				<button class="@inputClass bg-gray-900 text-white hover:bg-gray-700 focus:bg-gray-700" type="submit">Register</button>
-			</div>
-			<div>
-				<button class="@inputClass text-black hover:bg-gray-100 focus:bg-gray-100" type="submit">Login</button>
-			</div>
+<form method="post">
+	<div class="grid grid-cols-1 gap-4">
+		<div>
+			<label class="block">
+				<span>Emailová adresa</span>
+				<input class="@inputClass" type="email" asp-for="Form.Email">
+			</label>
 		</div>
-	</form>
-</div>
 
-@functions {
-	private IHtmlContent RenderInput(string label, string type, string propertyName)
-	{
-		var htmlString = $@"
-            <div>
-                <label class='block'>
-                    <span class='text-black'>{label}</span>
-                    <input class='form-input block shadow appearance-none border rounded mt-1 px-4 py-1 w-full' type='{type}' asp-for='{propertyName}'>
-                </label>
-            </div>";
+		<div>
+			<label class="block">
+				<span>Jméno</span>
+				<input class="@inputClass" type="text" asp-for="Form.GivenName">
+			</label>
+		</div>
 
-		return new HtmlString(htmlString);
-	}
-}
+		<div>
+			<label class="block">
+				<span>Příjmení</span>
+				<input class="@inputClass" type="text" asp-for="Form.FamilyName">
+			</label>
+		</div>
+
+		<div>
+			<label class="block">
+				<span>Heslo</span>
+				<input class="@inputClass" type="password" asp-for="Form.Password">
+			</label>
+		</div>
+
+		<div>
+			<label class="block">
+				<span>Opakování hesla</span>
+				<input class="@inputClass" type="password" asp-for="Form.PasswordRepeat">
+			</label>
+		</div>
+
+		<div>
+			<button class="@inputClass bg-green-900 text-white hover:bg-green-800 focus:bg-green-800" type="submit">Registrovat se</button>
+		</div>
+		<div>
+			<button class="@inputClass hover:bg-gray-100 focus:bg-gray-100" type="submit">Přihlásit se</button>
+		</div>
+	</div>
+</form>
