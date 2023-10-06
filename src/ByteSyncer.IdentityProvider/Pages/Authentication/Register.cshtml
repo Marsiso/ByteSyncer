@@ -1,32 +1,41 @@
 ﻿@page
+@using Microsoft.AspNetCore.Html;
 @model ByteSyncer.IdentityProvider.Pages.Authentication.RegisterModel
 @{
+	var inputClass = "form-input block shadow appearance-none border rounded mt-1 px-4 py-1 w-full";
 }
 
-<h1>Register</h1>
+<div class="w-full max-w-[30rem]">
+	<h1 class="text-3xl font-semibold mb-4">Register</h1>
+	<form method="post">
+		<div class="grid grid-cols-1 gap-4">
+			@RenderInput("Email", "email", "Form.Email")
+			@RenderInput("Given name", "text", "Form.GivenName")
+			@RenderInput("Family name", "text", "Form.FamilyName")
+			@RenderInput("Password", "password", "Form.Password")
+			@RenderInput("Password repeat", "password", "Form.PasswordRepeat")
 
-<form method="post">
-    <table>
-        <thead>
-            <tr>
-                <td>Email</td>
-                <td>Given name</td>
-                <td>Family name</td>
-                <td>Password</td>
-                <td>Password repeat</td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><input type="email" asp-for="Form.Email" /></td>
-                <td><input type="text" asp-for="Form.GivenName" /></td>
-                <td><input type="text" asp-for="Form.FamilyName" /></td>
-                <td><input type="password" asp-for="Form.Password" /></td>
-                <td><input type="password" asp-for="Form.PasswordRepeat" /></td>
-            </tr>
-            <tr>
-                <td colspan="5"><button type="submit">Register</button></td>
-            </tr>
-        </tbody>
-    </table>
-</form>
+			<div>
+				<button class="@inputClass bg-gray-900 text-white hover:bg-gray-700 focus:bg-gray-700" type="submit">Register</button>
+			</div>
+			<div>
+				<button class="@inputClass text-black hover:bg-gray-100 focus:bg-gray-100" type="submit">Login</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+@functions {
+	private IHtmlContent RenderInput(string label, string type, string propertyName)
+	{
+		var htmlString = $@"
+            <div>
+                <label class='block'>
+                    <span class='text-black'>{label}</span>
+                    <input class='form-input block shadow appearance-none border rounded mt-1 px-4 py-1 w-full' type='{type}' asp-for='{propertyName}'>
+                </label>
+            </div>";
+
+		return new HtmlString(htmlString);
+	}
+}

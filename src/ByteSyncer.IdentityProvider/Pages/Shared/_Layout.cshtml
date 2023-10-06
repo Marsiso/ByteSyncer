@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,17 +8,81 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ByteSyncer.IdentityProvider.styles.css" asp-append-version="true" />
 </head>
+
 <body>
-    <header></header>
+	<div class="h-screen flex flex-col">
+        <div class="flex-none">
+            <header>
+                <nav class="relative flex w-full flex-wrap items-center justify-between bg-gray-900 py-8 text-white shadow-lg">
+                    <div class="flex w-full flex-wrap items-center justify-between px-4">
+                        <div class="flex-grow basis-[100%] items-center lg:!flex lg:basis-auto">
+                            <ul class="list-style-none mr-auto flex flex-col lg:flex-row">
+                                <li>
+                                    <a class="px-4 text-3xl font-semibold" aria-current="page" href="/Index">Identity provider</a>
+                                </li>
+                            </ul>
+                            <div class="flex items-center mt-4 lg:mt-0">
+                                @* <a class="px-4 hover:underline hover:underline-offset-4 focus:underline focus:underline-offset-4" href="#">
+                                    Account
+                                </a>
+                                <a class="px-4 hover:underline hover:underline-offset-4 focus:underline focus:underline-offset-4" href="#">
+                                    Claims
+                                </a>
+                                <a class="px-4 hover:underline hover:underline-offset-4 focus:underline focus:underline-offset-4" href="#">
+                                    Permissions
+                                </a>
+                                <a class="px-4 hover:underline hover:underline-offset-4 focus:underline focus:underline-offset-4" href="#">
+                                    Logout
+                                </a> *@
+                                <a class="px-4 hover:underline hover:underline-offset-4 focus:underline focus:underline-offset-4" href="#">
+                                    Login
+                                </a>
+                                <a class="px-4 hover:underline hover:underline-offset-4 focus:underline focus:underline-offset-4" href="/Authentication/Register">
+                                    Sign up for free
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+        </div>
 
-    <main>
-        @RenderBody()
-    </main>
+        <div class="grow">
+            <main>
+				<div class="m-8">
+					<div class="flex justify-center">
+						@RenderBody()
+					</div>
+				</div>
+            </main>
+        </div>
 
-    <footer></footer>
+        <div class="flex-none">
+            <footer>
+                <div class="bg-gray-900">
+                    <div class="max-w-2xl mx-auto text-white py-12">
+                        <div class="text-center">
+                            <h3 class="text-3xl mb-3">Try identity provider today</h3>
+                            <p>Secure. Reliable. Scalable.</p>
+                        </div>
+                        <div class="mt-16 flex flex-col md:flex-row md:justify-between items-center text-sm text-gray-400">
+                            <p class="order-2 md:order-1 mt-8 md:mt-0"> &copy; ByteSyncer, 2023. </p>
+                            <div class="order-1 md:order-2">
+                                <span class="px-2">About us</span>
+                                <span class="px-2 border-l">Contact us</span>
+                                <span class="px-2 border-l">Privacy Policy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>
