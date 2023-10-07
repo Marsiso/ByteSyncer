@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using ByteSyncer.Core.Files.Commands;
+using ByteSyncer.Core.Helpers;
 using ByteSyncer.Data.EF;
 using ByteSyncer.Domain.Application.Models;
 using ByteSyncer.Domain.Contracts;
+using ByteSyncer.Domain.Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
@@ -45,7 +47,7 @@ namespace ByteSyncer.Core.Application.Commands
 
                 if (!validationResult.IsValid)
                 {
-                    return new RegisterCommandResult(RegisterCommandResultType.ValidationFailure, default, new ValidationException("Register commad is invalid.", validationResult.Errors));
+                    return new RegisterCommandResult(RegisterCommandResultType.ValidationFailure, default, new EntityValidationException("Register commad is invalid.", ValidationResultHelpers.DistinctErrorsByProperty(validationResult)));
                 }
 
                 CreateFolderCommand command = new CreateFolderCommand("Root");

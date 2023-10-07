@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using ByteSyncer.Core.Application.Commands;
 using ByteSyncer.Domain.Application.DataTransferObjects;
+using ByteSyncer.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -23,6 +25,8 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
         [BindProperty]
         public RegisterInput? Form { get; set; }
 
+        public EntityValidationException? ValidationException { get; set; }
+
         public void OnGet()
         {
         }
@@ -37,7 +41,40 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
                 return Redirect("../Index");
             }
 
+            ValidationException = commandResult?.Exception as EntityValidationException;
+
             return Page();
+        }
+
+        public bool HasValidationErrors([NotNullWhen(true)] string? propertyName)
+        {
+            bool hasValidationErrors = ValidationException is not null && ValidationException.Errors.ContainsKey(propertyName);
+
+            return hasValidationErrors;
+        }
+
+        public string GetValidationErrorsClasses(string? propertyName)
+        {
+            string classes = string.Empty;
+
+            if (HasValidationErrors(propertyName))
+            {
+                classes = "peer";
+            }
+
+            return classes;
+        }
+
+        public string GetValidationErrorsMessages(string? propertyName)
+        {
+            string message = string.Empty;
+
+            if (HasValidationErrors(propertyName))
+            {
+                message = ValidationException.Errors[propertyName].First();
+            }
+
+            return message;
         }
     }
 }
