@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,17 +8,18 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ByteSyncer.IdentityProvider.styles.css" asp-append-version="true" />
 </head>
+
 <body>
-    <header></header>
-
-    <main>
-        @RenderBody()
-    </main>
-
-    <footer></footer>
+	<div class="flex items-center justify-center h-screen bg-pattern">
+		<div class="p-[4rem] w-[30rem] bg-white text-black shadow-lg shadow-green-900 rounded">
+			@RenderBody()
+		</div>
+	</div>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

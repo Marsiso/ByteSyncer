@@ -16,7 +16,7 @@ namespace ByteSyncer.Data.EF.Application.Configurations
             builder.HasIndex(codeListItem => codeListItem.CodeListID);
 
             builder.Property(codeListItem => codeListItem.Value)
-                   .HasMaxLength(256);
+                   .HasMaxLength(512);
         }
     }
 }

@@ -30,11 +30,8 @@ namespace ByteSyncer.Data.EF.Application.Configurations
                    .HasMaxLength(256)
                    .IsUnicode();
 
-            builder.Property(user => user.Password)
-                   .HasMaxLength(512);
-
-            builder.Property(user => user.PasswordSalt)
-                   .HasMaxLength(512);
+            builder.Property(user => user.PasswordHash)
+                   .HasMaxLength(1024);
 
             builder.Property(user => user.SecurityStamp)
                    .HasMaxLength(512);

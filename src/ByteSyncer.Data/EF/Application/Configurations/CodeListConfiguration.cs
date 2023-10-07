@@ -14,7 +14,7 @@ namespace ByteSyncer.Data.EF.Application.Configurations
             builder.ToTable(Tables.CodeLists, Schemas.Application);
 
             builder.Property(user => user.Name)
-                   .HasMaxLength(256);
+                   .HasMaxLength(512);
 
             builder.HasMany(codeList => codeList.CodeListItems)
                    .WithOne()
