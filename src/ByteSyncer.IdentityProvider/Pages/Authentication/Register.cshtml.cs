@@ -59,7 +59,7 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
 
             if (HasValidationErrors(propertyName))
             {
-                classes = "peer";
+                classes = "peer invalid:border-red-500";
             }
 
             return classes;

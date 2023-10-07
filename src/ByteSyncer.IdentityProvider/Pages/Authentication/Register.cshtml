@@ -2,7 +2,9 @@
 @using Microsoft.AspNetCore.Html;
 @model ByteSyncer.IdentityProvider.Pages.Authentication.RegisterModel
 @{
-	var inputClass = "form-input block shadow appearance-none border rounded mt-2 px-2 py-1 w-full";
+	ViewBag.Title = "Sign up";
+	string inputClass = "form-input block shadow appearance-none border rounded mt-2 px-2 py-1 w-full";
+	string errorLabelClass = "block mt-2 h-0 peer-invalid:h-fit text-sm text-red-500 invisible peer-invalid:visible";
 }
 
 <h1 class="text-3xl font-semibold mb-4">Registrace</h1>
@@ -15,9 +17,9 @@
 				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.Email)))
 				{
-				<span class="mt-2 text-sm text-red-500 peer-[&:not(:placeholder-shown):not(:focus):invalid]:block">
-					@Model.GetValidationErrorsMessages(nameof(Model.Form.Email))
-				</span>
+					<span class="@errorLabelClass">
+						@Model.GetValidationErrorsMessages(nameof(Model.Form.Email))
+					</span>
 				}
 			</label>
 		</div>
@@ -28,9 +30,9 @@
 				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.GivenName))" type="text" asp-for="Form.GivenName" required">
 				@if (Model.HasValidationErrors(nameof(Model.Form.GivenName)))
 				{
-				<span class="mt-2 text-sm text-red-500 peer-[&:not(:placeholder-shown):not(:focus):invalid]:block">
-					@Model.GetValidationErrorsMessages(nameof(Model.Form.GivenName))
-				</span>
+					<span class="@errorLabelClass">
+						@Model.GetValidationErrorsMessages(nameof(Model.Form.GivenName))
+					</span>
 				}
 			</label>
 		</div>
@@ -41,9 +43,9 @@
 				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.FamilyName))" type="text" asp-for="Form.FamilyName" required">
 				@if (Model.HasValidationErrors(nameof(Model.Form.FamilyName)))
 				{
-				<span class="mt-2 text-sm text-red-500 peer-[&:not(:placeholder-shown):not(:focus):invalid]:block">
-					@Model.GetValidationErrorsMessages(nameof(Model.Form.FamilyName))
-				</span>
+					<span class="@errorLabelClass">
+						@Model.GetValidationErrorsMessages(nameof(Model.Form.FamilyName))
+					</span>
 				}
 			</label>
 		</div>
@@ -54,9 +56,9 @@
 				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.Password)))
 				{
-				<span class="mt-2 text-sm text-red-500 peer-[&:not(:placeholder-shown):not(:focus):invalid]:block">
-					@Model.GetValidationErrorsMessages(nameof(Model.Form.Password))
-				</span>
+					<span class="@errorLabelClass">
+						@Model.GetValidationErrorsMessages(nameof(Model.Form.Password))
+					</span>
 				}
 			</label>
 		</div>
@@ -67,9 +69,9 @@
 				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.PasswordRepeat))" type="password" asp-for="Form.PasswordRepeat" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.PasswordRepeat)))
 				{
-				<span class="mt-2 text-sm text-red-500 peer-[&:not(:placeholder-shown):not(:focus):invalid]:block">
-					@Model.GetValidationErrorsMessages(nameof(Model.Form.PasswordRepeat))
-				</span>
+					<span class="@errorLabelClass">
+						@Model.GetValidationErrorsMessages(nameof(Model.Form.PasswordRepeat))
+					</span>
 				}
 			</label>
 		</div>
