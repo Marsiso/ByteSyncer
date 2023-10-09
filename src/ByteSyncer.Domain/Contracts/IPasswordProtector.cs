@@ -2,7 +2,7 @@
 {
     public interface IPasswordProtector
     {
-        public string HashPassword(string password);
-        public bool VerifyPassword(string password, string passwordHash);
+        public (string, string) HashPassword(string password);
+        public bool VerifyPassword(string password, string passwordKey, string passwordSalt);
     }
 }

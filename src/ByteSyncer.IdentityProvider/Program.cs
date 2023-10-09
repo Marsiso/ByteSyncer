@@ -19,8 +19,7 @@ services.AddRazorPages();
 services.AddOptions<PasswordProtectorOptions>()
         .Configure(options =>
         {
-            options.Pepper = "Pepper";
-            options.WorkFactor = 12;
+            options.Pepper = "SecurePasswordPepper";
         })
         .ValidateDataAnnotations()
         .ValidateOnStart();

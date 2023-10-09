@@ -9,7 +9,8 @@ namespace ByteSyncer.Domain.Application.Models
         public string GivenName { get; set; } = string.Empty;
         public string FamilyName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string? PasswordHash { get; set; }
+        public string? Password { get; set; }
+        public string? PasswordSalt { get; set; }
         public string? SecurityStamp { get; set; }
 
 

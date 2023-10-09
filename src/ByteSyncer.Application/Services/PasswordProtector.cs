@@ -1,4 +1,7 @@
-﻿using ByteSyncer.Application.Options;
+﻿using System.Security.Cryptography;
+using System.Text;
+using ByteSyncer.Application.Options;
+using ByteSyncer.Application.Utilities;
 using ByteSyncer.Domain.Contracts;
 using Microsoft.Extensions.Options;
 
@@ -13,27 +16,66 @@ namespace ByteSyncer.Application.Services
             Options = options.Value;
         }
 
-        public string HashPassword(string password)
+        public (string, string) HashPassword(string password)
         {
             ArgumentException.ThrowIfNullOrEmpty(password, nameof(password));
 
             string passwordWithPepper = password + Options.Pepper;
 
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(passwordWithPepper, Options.WorkFactor);
+            byte[] keyBytes = new byte[Options.KeySize];
+            byte[] saltBytes = new byte[Options.SaltSize];
 
-            return passwordHash;
+            SodiumLibrary.randombytes_buf(saltBytes, saltBytes.Length);
+
+            int result = SodiumLibrary.crypto_pwhash(
+                keyBytes,
+                keyBytes.Length,
+                Encoding.UTF8.GetBytes(passwordWithPepper),
+                password.Length,
+                saltBytes,
+                Options.OperationsLimit,
+                Options.MemoryLimit,
+                (int)Options.Algorithm);
+
+            if (result != 0)
+            {
+                throw new Exception();
+            }
+
+            return (Convert.ToBase64String(keyBytes), Convert.ToBase64String(saltBytes));
         }
 
-        public bool VerifyPassword(string password, string passwordHash)
+        public bool VerifyPassword(string password, string passwordKey, string passwordSalt)
         {
             ArgumentException.ThrowIfNullOrEmpty(password, nameof(password));
-            ArgumentException.ThrowIfNullOrEmpty(passwordHash, nameof(passwordHash));
+            ArgumentException.ThrowIfNullOrEmpty(passwordKey, nameof(passwordKey));
+            ArgumentException.ThrowIfNullOrEmpty(passwordSalt, nameof(passwordSalt));
 
             string passwordWithPepper = password + Options.Pepper;
 
-            bool matchFound = BCrypt.Net.BCrypt.Verify(passwordWithPepper, passwordHash);
+            byte[] keyBytes = new byte[Options.KeySize];
 
-            return matchFound;
+            byte[] originalKeyBytes = Convert.FromBase64String(passwordKey);
+            byte[] originalSaltBytes = Convert.FromBase64String(passwordSalt);
+
+            SodiumLibrary.randombytes_buf(originalSaltBytes, originalSaltBytes.Length);
+
+            int result = SodiumLibrary.crypto_pwhash(
+                keyBytes,
+                keyBytes.Length,
+                Encoding.UTF8.GetBytes(passwordWithPepper),
+                password.Length,
+                originalSaltBytes,
+                Options.OperationsLimit,
+                Options.MemoryLimit,
+                (int)Options.Algorithm);
+
+            if (result != 0)
+            {
+                throw new Exception();
+            }
+
+            return CryptographicOperations.FixedTimeEquals(keyBytes, originalKeyBytes);
         }
     }
 }
