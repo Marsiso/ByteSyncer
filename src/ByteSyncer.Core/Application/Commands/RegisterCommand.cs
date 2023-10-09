@@ -61,8 +61,10 @@ namespace ByteSyncer.Core.Application.Commands
                 User user = _mapper.Map<User>(request);
 
                 user.RootFolderID = commandResult.Folder.ID;
-                user.PasswordHash = _passwordProtector.HashPassword(request.Password);
-                user.SecurityStamp = Guid.NewGuid().ToString();
+
+                (user.Password, user.PasswordSalt) = _passwordProtector.HashPassword(request.Password);
+
+                user.SecurityStamp = SecurityStampHelpers.GetSecurityStamp();
 
                 await _context.Users.AddAsync(user, cancellationToken);
                 await _context.SaveChangesAsync();
