@@ -47,29 +47,29 @@ namespace ByteSyncer.Core.Application.Commands
 
                 if (!validationResult.IsValid)
                 {
-                    return new RegisterCommandResult(RegisterCommandResultType.ValidationFailure, default, new EntityValidationException("Register commad is invalid.", ValidationResultHelpers.DistinctErrorsByProperty(validationResult)));
+                    return new RegisterCommandResult(RegisterCommandResultType.ValidationFailure, default, new EntityValidationException("Register commad has validation errors.", ValidationResultHelpers.DistinctErrorsByProperty(validationResult)));
                 }
 
-                CreateFolderCommand command = new CreateFolderCommand("Root");
-                CreateFolderCommandResult commandResult = await _mediator.Send(command, cancellationToken);
+                CreateFolderCommand createFolderCommand = new CreateFolderCommand("Root");
+                CreateFolderCommandResult createFolderCommandResult = await _mediator.Send(createFolderCommand, cancellationToken);
 
-                if (commandResult.Result != CreateFolderCommandResultType.Succeded)
+                if (createFolderCommandResult.Result != CreateFolderCommandResultType.Succeded)
                 {
-                    return new RegisterCommandResult(RegisterCommandResultType.InternalServerError, default, commandResult.Exception);
+                    return new RegisterCommandResult(RegisterCommandResultType.InternalServerError, default, createFolderCommandResult.Exception);
                 }
 
-                User user = _mapper.Map<User>(request);
+                User userToCreate = _mapper.Map<User>(request);
 
-                user.RootFolderID = commandResult.Folder.ID;
+                userToCreate.RootFolderID = createFolderCommandResult.Folder.ID;
 
-                (user.Password, user.PasswordSalt) = _passwordProtector.HashPassword(request.Password);
+                (userToCreate.Password, userToCreate.PasswordSalt) = _passwordProtector.HashPassword(request.Password);
 
-                user.SecurityStamp = SecurityStampHelpers.GetSecurityStamp();
+                userToCreate.SecurityStamp = SecurityStampHelpers.GetSecurityStamp();
 
-                await _context.Users.AddAsync(user, cancellationToken);
+                await _context.Users.AddAsync(userToCreate, cancellationToken);
                 await _context.SaveChangesAsync();
 
-                return new RegisterCommandResult(RegisterCommandResultType.Succeded, user, default);
+                return new RegisterCommandResult(RegisterCommandResultType.Succeded, userToCreate, default);
             }
             catch (Exception exception)
             {

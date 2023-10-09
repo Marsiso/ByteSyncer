@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ByteSyncer.Application.Utilities
+namespace ByteSyncer.Application.External
 {
     /// <summary>
     ///     Sodium is a modern, easy-to-use software library for encryption, decryption, signatures, password hashing, and more.
