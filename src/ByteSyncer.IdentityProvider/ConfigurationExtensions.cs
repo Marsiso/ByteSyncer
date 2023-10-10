@@ -13,6 +13,7 @@ namespace ByteSyncer.IdentityProvider
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
+                       .UseOpenIddict()
                        .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll)
                        .EnableDetailedErrors(environment.IsDevelopment())
                        .EnableSensitiveDataLogging(environment.IsDevelopment());

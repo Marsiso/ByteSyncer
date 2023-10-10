@@ -1,8 +1,9 @@
-﻿using ByteSyncer.Domain.Application.Models;
+﻿using System.Reflection;
+using ByteSyncer.Domain.Application.Models;
 using ByteSyncer.Domain.Files.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using System.Reflection;
+using OpenIddict.EntityFrameworkCore.Models;
 using File = ByteSyncer.Domain.Files.Models.File;
 
 namespace ByteSyncer.Data.EF
@@ -33,6 +34,13 @@ namespace ByteSyncer.Data.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasDefaultSchema(Schemas.Application);
+
+            modelBuilder.Entity<OpenIddictEntityFrameworkCoreToken>().ToTable(Tables.Tokens, Schemas.OpenIddict);
+            modelBuilder.Entity<OpenIddictEntityFrameworkCoreApplication>().ToTable(Tables.Applications, Schemas.OpenIddict);
+            modelBuilder.Entity<OpenIddictEntityFrameworkCoreAuthorization>().ToTable(Tables.Authorizations, Schemas.OpenIddict);
+            modelBuilder.Entity<OpenIddictEntityFrameworkCoreScope>().ToTable(Tables.Scopes, Schemas.OpenIddict);
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(DataContext)));
         }
