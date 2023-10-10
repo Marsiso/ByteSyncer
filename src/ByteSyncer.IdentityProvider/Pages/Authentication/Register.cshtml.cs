@@ -38,7 +38,7 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
 
             if (commandResult.Result == RegisterCommandResultType.Succeded)
             {
-                return Redirect("../Index");
+                return Redirect("./Login");
             }
 
             ValidationException = commandResult?.Exception as EntityValidationException;

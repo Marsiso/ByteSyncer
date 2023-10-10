@@ -7,6 +7,7 @@ using ByteSyncer.Core.Application.Commands;
 using ByteSyncer.Domain.Contracts;
 using ByteSyncer.IdentityProvider;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ IConfiguration configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
 
 services.AddRazorPages();
+
+services.AddAuthentication()
+        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
 services.AddOptions<PasswordProtectorOptions>()
         .Configure(options =>
@@ -49,6 +53,7 @@ application.UseHttpsRedirection()
            .UseStaticFiles();
 
 application.UseRouting()
+           .UseAuthentication()
            .UseAuthorization();
 
 application.MapRazorPages();

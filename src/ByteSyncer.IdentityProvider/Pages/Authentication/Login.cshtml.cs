@@ -1,9 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
 using AutoMapper;
 using ByteSyncer.Core.Application.Commands;
 using ByteSyncer.Domain.Application.DataTransferObjects;
 using ByteSyncer.Domain.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -20,6 +23,7 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
             _mediator = mediator;
         }
 
+        [BindProperty]
         public string? ReturnUrl { get; set; }
 
         [BindProperty]
@@ -27,8 +31,11 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
 
         public EntityValidationException? ValidationException { get; set; }
 
-        public void OnGet()
+        public IActionResult OnGet(string? returnUrl)
         {
+            ReturnUrl = returnUrl;
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -38,8 +45,27 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
 
             if (commandResult.Result == LoginCommandResultType.Succeded)
             {
-                return Redirect("../Index");
-            }
+                List<Claim> claims = new List<Claim>()
+                {
+                    new(ClaimTypes.Email, commandResult.User.Email),
+                    new(ClaimTypes.GivenName, commandResult.User.GivenName),
+                    new(ClaimTypes.Surname, commandResult.User.FamilyName)
+                };
+
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+                if (string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    return Redirect("../Index");
+                }
+                else
+                {
+                    return Redirect(ReturnUrl);
+                }
+            };
 
             ValidationException = commandResult?.Exception as EntityValidationException;
 
