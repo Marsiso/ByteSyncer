@@ -8,9 +8,9 @@
 	ViewBag.Title = "Sign up";
 }
 
-<h1 class="text-3xl font-semibold mb-4">Registrace</h1>
+<h1 class="text-2xl font-semibold">Registrace</h1>
 
-<form method="post" class="group" novalidate>
+<form method="post" class="mt-4 group" novalidate>
 	<div class="grid grid-cols-1 gap-4">
 		<div>
 			<label class="block">
@@ -82,6 +82,10 @@
 		</div>
 		<div>
 			<a class="block shadow appearance-none border rounded mt-2 px-2 py-1 text-center w-full hover:bg-gray-100 focus:bg-gray-100" asp-page="/Authentication/Login">Přihlásit se</a>
+		</div>
+		<div>
+			<h3 class="text-sm text-gray-500">Odeslání vyplněného formuláře souhlasíte se <a class="underline" href="#">zásadami zpracování osobních údajů</a>.</h3>
+			<h3 class="mt-2 text-sm text-gray-500">Žádost po odeslání bude ověřena oprávněnou osobou, v případě potíží kontaktuje správce aplikace.</h3>
 		</div>
 	</div>
 </form>

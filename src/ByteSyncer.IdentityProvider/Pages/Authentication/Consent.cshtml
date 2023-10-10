@@ -1,0 +1,27 @@
+﻿@page
+@using ByteSyncer.Domain.Constants;
+@model ByteSyncer.IdentityProvider.Pages.Authentication.ConsentModel
+@{
+	const string InputFieldClass = "w-full block px-2 py-1 form-input shadow border rounded";
+
+	ViewBag.Title = "Consent";
+}
+
+<h1 class="text-2xl font-semibold">Souhlas k udělení přístupu</h1>
+<h3 class="text-xl text-gray-500">Přístupy zahrnují náhled identity uživatele a jím vlastněné zdroje.</h3>
+
+<form method="post" class="mt-6 group">
+	<div class="grid grid-cols-2 gap-4">
+		<div>
+			<label class="block">
+				<input class="@InputFieldClass text-white bg-sky-900 hover:bg-sky-800 focus:bg-sky-800" type="submit" name="grant" value="@AuthorizationDefaults.GrantAccessValue">
+			</label>
+		</div>
+
+		<div>
+			<label class="block">
+				<input class="@InputFieldClass hover:bg-gray-100 focus:bg-gray-100" type="submit" name="grant" value="@AuthorizationDefaults.DenyAccessValue">
+			</label>
+		</div>
+	</div>
+</form>
