@@ -1,9 +1,10 @@
 ﻿@page
 @model ByteSyncer.IdentityProvider.Pages.Authentication.LoginModel
 @{
+	const string InputFieldClass = "w-full block mt-2 px-2 py-1 form-input shadow border rounded";
+	const string InputFieldErrorClass = "h-fit block mt-2 text-sm text-red-500";
+
 	ViewBag.Title = "Log in";
-	string inputClass = "form-input block shadow appearance-none border rounded mt-2 px-2 py-1 w-full";
-	string errorLabelClass = "block mt-2 h-fit text-sm text-red-500";
 }
 
 <h1 class="text-3xl font-semibold mb-4">Přihlášení</h1>
@@ -13,24 +14,23 @@
 		<div>
 			<label class="block">
 				<span>Emailová adresa</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" required>
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.Email)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.Email))
 					</span>
 				}
 			</label>
 		</div>
 
-
 		<div>
 			<label class="block">
 				<span>Heslo</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" required>
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.Password)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.Password))
 					</span>
 				}
@@ -38,10 +38,10 @@
 		</div>
 
 		<div>
-			<button class="@inputClass group-invalid:pointer-events-none group-invalid:opacity-30 bg-green-900 text-white hover:bg-green-800 focus:bg-green-800" type="submit">Přihlásit se</button>
+			<button class="w-full block mt-2 px-2 py-1 shadow border rounded form-input group-invalid:pointer-events-none group-invalid:opacity-30 text-white bg-sky-900 hover:bg-sky-800 focus:bg-sky-800">Přihlásit se</button>
 		</div>
 		<div>
-			<button class="block shadow appearance-none border rounded mt-2 px-2 py-1 w-full hover:bg-gray-100 focus:bg-gray-100" type="button" href="/Authentication/Register">Registrovat se</button>
+			<a class="block shadow appearance-none border rounded mt-2 px-2 py-1 text-center w-full hover:bg-gray-100 focus:bg-gray-100" asp-page="/Authentication/Register">Registrovat se</a>
 		</div>
 	</div>
 </form>

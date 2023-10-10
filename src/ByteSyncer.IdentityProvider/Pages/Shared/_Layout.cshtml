@@ -4,15 +4,18 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="Author: Marek Olšák" />
     <title>@ViewData["Title"] - ByteSyncer Identity Provider</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ByteSyncer.IdentityProvider.styles.css" asp-append-version="true" />
 </head>
 
 <body>
-	<div class="flex items-center justify-center h-screen bg-pattern">
-		<div class="p-[4rem] w-[30rem] bg-white text-black shadow-lg shadow-green-900 rounded">
-			@RenderBody()
+	<div class="h-screen flex">
+		<div class="w-[30rem] m-auto p-[2rem] noshadow sm:shadow-lg rounded">
+			<main>
+				@RenderBody()
+			</main>
 		</div>
 	</div>
 

@@ -2,9 +2,10 @@
 @using Microsoft.AspNetCore.Html;
 @model ByteSyncer.IdentityProvider.Pages.Authentication.RegisterModel
 @{
+	const string InputFieldClass = "w-full block mt-2 px-2 py-1 form-input shadow border rounded";
+	const string InputFieldErrorClass = "h-fit block mt-2 text-sm text-red-500";
+
 	ViewBag.Title = "Sign up";
-	string inputClass = "form-input block shadow appearance-none border rounded mt-2 px-2 py-1 w-full";
-	string errorLabelClass = "block mt-2 h-fit text-sm text-red-500";
 }
 
 <h1 class="text-3xl font-semibold mb-4">Registrace</h1>
@@ -14,10 +15,10 @@
 		<div>
 			<label class="block">
 				<span>Emailová adresa</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" required>
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.Email)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.Email))
 					</span>
 				}
@@ -27,10 +28,10 @@
 		<div>
 			<label class="block">
 				<span>Jméno</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.GivenName))" type="text" asp-for="Form.GivenName" required">
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.GivenName))" type="text" asp-for="Form.GivenName" required">
 				@if (Model.HasValidationErrors(nameof(Model.Form.GivenName)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.GivenName))
 					</span>
 				}
@@ -40,10 +41,10 @@
 		<div>
 			<label class="block">
 				<span>Příjmení</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.FamilyName))" type="text" asp-for="Form.FamilyName" required">
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.FamilyName))" type="text" asp-for="Form.FamilyName" required">
 				@if (Model.HasValidationErrors(nameof(Model.Form.FamilyName)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.FamilyName))
 					</span>
 				}
@@ -53,10 +54,10 @@
 		<div>
 			<label class="block">
 				<span>Heslo</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" required>
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.Password)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.Password))
 					</span>
 				}
@@ -66,10 +67,10 @@
 		<div>
 			<label class="block">
 				<span>Opakování hesla</span>
-				<input class="@inputClass @Model.GetValidationErrorsClasses(nameof(Model.Form.PasswordRepeat))" type="password" asp-for="Form.PasswordRepeat" required>
+				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.PasswordRepeat))" type="password" asp-for="Form.PasswordRepeat" required>
 				@if (Model.HasValidationErrors(nameof(Model.Form.PasswordRepeat)))
 				{
-					<span class="@errorLabelClass">
+					<span class="@InputFieldErrorClass">
 						@Model.GetValidationErrorsMessages(nameof(Model.Form.PasswordRepeat))
 					</span>
 				}
@@ -77,10 +78,10 @@
 		</div>
 
 		<div>
-			<button class="@inputClass group-invalid:pointer-events-none group-invalid:opacity-30 bg-green-900 text-white hover:bg-green-800 focus:bg-green-800" type="submit">Registrovat se</button>
+			<button class="w-full block mt-2 px-2 py-1 shadow border rounded form-input group-invalid:pointer-events-none group-invalid:opacity-30 text-white bg-sky-900 hover:bg-sky-800 focus:bg-sky-800" type="submit">Registrovat se</button>
 		</div>
 		<div>
-			<button class="block shadow appearance-none border rounded mt-2 px-2 py-1 w-full hover:bg-gray-100 focus:bg-gray-100" type="button" href="/Authentication/Login">Přihlásit se</button>
+			<a class="block shadow appearance-none border rounded mt-2 px-2 py-1 text-center w-full hover:bg-gray-100 focus:bg-gray-100" asp-page="/Authentication/Login">Přihlásit se</a>
 		</div>
 	</div>
 </form>
