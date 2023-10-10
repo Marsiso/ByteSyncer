@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using ByteSyncer.Application.External;
 using ByteSyncer.Application.Options;
-using ByteSyncer.Application.Utilities;
 using ByteSyncer.Domain.Contracts;
 using Microsoft.Extensions.Options;
 
@@ -31,7 +31,7 @@ namespace ByteSyncer.Application.Services
                 keyBytes,
                 keyBytes.Length,
                 Encoding.UTF8.GetBytes(passwordWithPepper),
-                password.Length,
+                passwordWithPepper.Length,
                 saltBytes,
                 Options.OperationsLimit,
                 Options.MemoryLimit,
@@ -58,13 +58,11 @@ namespace ByteSyncer.Application.Services
             byte[] originalKeyBytes = Convert.FromBase64String(passwordKey);
             byte[] originalSaltBytes = Convert.FromBase64String(passwordSalt);
 
-            SodiumLibrary.randombytes_buf(originalSaltBytes, originalSaltBytes.Length);
-
             int result = SodiumLibrary.crypto_pwhash(
                 keyBytes,
                 keyBytes.Length,
                 Encoding.UTF8.GetBytes(passwordWithPepper),
-                password.Length,
+                passwordWithPepper.Length,
                 originalSaltBytes,
                 Options.OperationsLimit,
                 Options.MemoryLimit,

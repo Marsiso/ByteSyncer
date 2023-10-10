@@ -1,4 +1,4 @@
-﻿using ByteSyncer.Application.Utilities;
+﻿using ByteSyncer.Application.External;
 
 namespace ByteSyncer.Application.Options
 {

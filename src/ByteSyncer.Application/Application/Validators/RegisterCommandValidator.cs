@@ -20,9 +20,7 @@ namespace ByteSyncer.Application.Application.Validators
                 .MaximumLength(256)
                 .WithMessage("Emailová adresa může obsahovat nejvýše 256 znaků.")
                 .EmailAddress()
-                .WithMessage("Emailová adresa má neplatný formát.")
-                .MustAsync(async (command, cancelationToken) => await EmailAddressExistsNot(command, mediator, cancelationToken))
-                .WithMessage("Emailová adresa již existuje, vyberte prosím jinou nebo se přihlaste pomocí stávajícího účtu.");
+                .WithMessage("Emailová adresa má neplatný formát.");
 
             RuleFor(command => command.GivenName)
                 .NotEmpty()
@@ -57,15 +55,17 @@ namespace ByteSyncer.Application.Application.Validators
                 .WithMessage("Opakování hesla může obsahovat nejvýše 512 znaků.")
                 .Equal(command => command.Password)
                 .WithMessage("Heslo a jeho opakování musí být shodné.");
+
+            When(command => !string.IsNullOrWhiteSpace(command.Email), () =>
+            {
+                RuleFor(command => command.Email)
+                    .MustAsync(async (command, cancelationToken) => await EmailAddressExistsNot(command, mediator, cancelationToken))
+                    .WithMessage("Emailová adresa již existuje, vyberte prosím jinou nebo se přihlaste pomocí stávajícího účtu.");
+            });
         }
 
         private static async Task<bool> EmailAddressExistsNot(string? email, IMediator mediator, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                return true;
-            }
-
             EmailExistsQuery query = new EmailExistsQuery(email);
             EmailExistsQueryResult queryResult = await mediator.Send(query, cancellationToken);
 
