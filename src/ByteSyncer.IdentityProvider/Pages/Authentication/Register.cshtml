@@ -2,90 +2,83 @@
 @using Microsoft.AspNetCore.Html;
 @model ByteSyncer.IdentityProvider.Pages.Authentication.RegisterModel
 @{
-	const string InputFieldClass = "w-full block mt-2 px-2 py-1 form-input shadow border rounded";
-	const string InputFieldErrorClass = "h-fit block mt-2 text-sm text-red-500";
-
 	ViewBag.Title = "Sign up";
 }
 
-<h1 class="text-2xl font-semibold">Registrace</h1>
-
-<form method="post" class="mt-4 group" novalidate>
-	<div class="grid grid-cols-1 gap-4">
-		<div>
-			<label class="block">
-				<span>Emailová adresa</span>
-				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" required>
-				@if (Model.HasValidationErrors(nameof(Model.Form.Email)))
-				{
-					<span class="@InputFieldErrorClass">
-						@Model.GetValidationErrorsMessages(nameof(Model.Form.Email))
-					</span>
-				}
-			</label>
-		</div>
-
-		<div>
-			<label class="block">
-				<span>Jméno</span>
-				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.GivenName))" type="text" asp-for="Form.GivenName" required">
-				@if (Model.HasValidationErrors(nameof(Model.Form.GivenName)))
-				{
-					<span class="@InputFieldErrorClass">
-						@Model.GetValidationErrorsMessages(nameof(Model.Form.GivenName))
-					</span>
-				}
-			</label>
-		</div>
-
-		<div>
-			<label class="block">
-				<span>Příjmení</span>
-				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.FamilyName))" type="text" asp-for="Form.FamilyName" required">
-				@if (Model.HasValidationErrors(nameof(Model.Form.FamilyName)))
-				{
-					<span class="@InputFieldErrorClass">
-						@Model.GetValidationErrorsMessages(nameof(Model.Form.FamilyName))
-					</span>
-				}
-			</label>
-		</div>
-
-		<div>
-			<label class="block">
-				<span>Heslo</span>
-				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" required>
-				@if (Model.HasValidationErrors(nameof(Model.Form.Password)))
-				{
-					<span class="@InputFieldErrorClass">
-						@Model.GetValidationErrorsMessages(nameof(Model.Form.Password))
-					</span>
-				}
-			</label>
-		</div>
-
-		<div>
-			<label class="block">
-				<span>Opakování hesla</span>
-				<input class="@InputFieldClass @Model.GetValidationErrorsClasses(nameof(Model.Form.PasswordRepeat))" type="password" asp-for="Form.PasswordRepeat" required>
-				@if (Model.HasValidationErrors(nameof(Model.Form.PasswordRepeat)))
-				{
-					<span class="@InputFieldErrorClass">
-						@Model.GetValidationErrorsMessages(nameof(Model.Form.PasswordRepeat))
-					</span>
-				}
-			</label>
-		</div>
-
-		<div>
-			<button class="w-full block mt-2 px-2 py-1 shadow border rounded form-input group-invalid:pointer-events-none group-invalid:opacity-30 text-white bg-sky-900 hover:bg-sky-800 focus:bg-sky-800" type="submit">Registrovat se</button>
-		</div>
-		<div>
-			<a class="block shadow appearance-none border rounded mt-2 px-2 py-1 text-center w-full hover:bg-gray-100 focus:bg-gray-100" asp-page="/Authentication/Login">Přihlásit se</a>
-		</div>
-		<div>
-			<h3 class="text-sm text-gray-500">Odeslání vyplněného formuláře souhlasíte se <a class="underline" href="#">zásadami zpracování osobních údajů</a>.</h3>
-			<h3 class="mt-2 text-sm text-gray-500">Žádost po odeslání bude ověřena oprávněnou osobou, v případě potíží kontaktuje správce aplikace.</h3>
-		</div>
-	</div>
+<form method="post">
+    <div class="row g-4">
+        <div class="col-12 text-center">
+            <h1>Registrace</h1>
+        </div>
+        <div class="col-12">
+            <div class="form-outline">
+                <input id="input-email" class="form-control  @Model.GetValidationInputClass(nameof(Model.Form.Email))" type="email" asp-for="Form.Email" aria-describedby="input-email">
+                <label for="input-email" class="form-label">Emailová adresa</label>
+                @if (Model.HasValidationErrors(nameof(Model.Form.Email)))
+                {
+                    <div class="invalid-feedback">
+                        @Model.GetFirstValidationErrorMessage(nameof(Model.Form.Email))
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-outline">
+                <input id="input-given-name" class="form-control @Model.GetValidationInputClass(nameof(Model.Form.GivenName))" type="text" asp-for="Form.GivenName" aria-describedby="input-given-name">
+                <label for="input-given-name" class="form-label">Jméno</label>
+                @if (Model.HasValidationErrors(nameof(Model.Form.GivenName)))
+                {
+                    <div class="invalid-feedback">
+                        @Model.GetFirstValidationErrorMessage(nameof(Model.Form.GivenName))
+                    </div>
+                }
+        </div>
+        </div>
+        <div class="col-12">
+                <div class="form-outline">
+                <input id="input-family-name" class="form-control @Model.GetValidationInputClass(nameof(Model.Form.FamilyName))" type="text" asp-for="Form.FamilyName" aria-describedby="input-family-name">
+                <label for="input-family-name" class="form-label">Příjmení</label>
+                    @if (Model.HasValidationErrors(nameof(Model.Form.FamilyName)))
+                    {
+                        <div class="invalid-feedback">
+                            @Model.GetFirstValidationErrorMessage(nameof(Model.Form.FamilyName))
+                        </div>
+                    }
+                </div>
+        </div>
+        <div class="col-12">
+                <div class="form-outline">
+                <input id="input-password" class="form-control @Model.GetValidationInputClass(nameof(Model.Form.Password))" type="password" asp-for="Form.Password" aria-describedby="input-password">
+                <label for="input-password" class="form-label">Heslo</label>
+                    @if (Model.HasValidationErrors(nameof(Model.Form.Password)))
+                    {
+                        <div class="invalid-feedback">
+                            @Model.GetFirstValidationErrorMessage(nameof(Model.Form.Password))
+                        </div>
+                    }
+                </div>
+        </div>
+        <div class="col-12">
+                <div class="form-outline">
+                <input id="input-password-repeat" class="form-control @Model.GetValidationInputClass(nameof(Model.Form.PasswordRepeat))" type="password" asp-for="Form.PasswordRepeat" aria-describedby="input-password-repeat">
+                <label for="input-password-repeat" class="form-label">Opakování hesla</label>
+                    @if (Model.HasValidationErrors(nameof(Model.Form.PasswordRepeat)))
+                    {
+                        <div class="invalid-feedback">
+                            @Model.GetFirstValidationErrorMessage(nameof(Model.Form.PasswordRepeat))
+                        </div>
+                    }
+                </div>
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary btn-rounded btn-block" type="submit">Registrovat se</button>
+        </div>
+        <div class="col-12 text-center">
+            <p class="text-secondary">Již máte účet? <a asp-page="/Authentication/Login">Přihlásit se</a></p>
+            <p class="text-secondary">
+                Odeslání vyplněného formuláře souhlasíte se
+                <a href="#">zásadami zpracování osobních údajů</a>.
+            </p>
+        </div>
+    </div>
 </form>

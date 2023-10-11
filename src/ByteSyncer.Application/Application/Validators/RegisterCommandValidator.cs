@@ -16,7 +16,7 @@ namespace ByteSyncer.Application.Application.Validators
 
             RuleFor(command => command.Email)
                 .NotEmpty()
-                .WithMessage("Emailová adresa je požadován.")
+                .WithMessage("Emailová adresa je požadována.")
                 .MaximumLength(256)
                 .WithMessage("Emailová adresa může obsahovat nejvýše 256 znaků.")
                 .EmailAddress()

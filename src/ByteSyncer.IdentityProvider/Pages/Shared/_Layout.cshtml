@@ -3,24 +3,28 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
 	<meta name="description" content="Author: Marek Olšák" />
+
     <title>@ViewData["Title"] - ByteSyncer Identity Provider</title>
+
+    <link rel="stylesheet" href="~/libs/fontawesome6/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+    <link rel="stylesheet" href="~/libs/mdb5/css/mdb.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ByteSyncer.IdentityProvider.styles.css" asp-append-version="true" />
 </head>
 
 <body>
-	<div class="h-screen flex">
-		<div class="w-[30rem] m-auto p-[2rem] noshadow sm:shadow-lg rounded">
-			<main>
-				@RenderBody()
-			</main>
-		</div>
+    <div class="min-vw-100 min-vh-100 d-flex align-items-center justify-content-center">
+        <div class="p-5 mobile-device shadow-lg corset rounded" style="max-width: 30rem;">
+            @RenderBody()
+        </div>
 	</div>
 
+    <script src="~/libs/mdb5/js/mdb.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

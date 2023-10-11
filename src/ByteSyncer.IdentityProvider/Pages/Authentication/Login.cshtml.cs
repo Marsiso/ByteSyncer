@@ -79,19 +79,19 @@ namespace ByteSyncer.IdentityProvider.Pages.Authentication
             return hasValidationErrors;
         }
 
-        public string GetValidationErrorsClasses(string? propertyName)
+        public string GetValidationInputClass(string? propertyName)
         {
             string classes = string.Empty;
 
             if (HasValidationErrors(propertyName))
             {
-                classes = "invalid peer border-red-500";
+                classes = "is-invalid";
             }
 
             return classes;
         }
 
-        public string GetValidationErrorsMessages(string? propertyName)
+        public string GetFirstValidationErrorMessage(string? propertyName)
         {
             string message = string.Empty;
 
