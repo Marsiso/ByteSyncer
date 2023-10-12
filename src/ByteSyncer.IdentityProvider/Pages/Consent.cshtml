@@ -1,0 +1,28 @@
+﻿@page
+@using ByteSyncer.Domain.Constants;
+@model ConsentModel
+@{
+	ViewBag.Title = "Souhlas";
+}
+
+<div>
+    <form method="post">
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-12">
+                <h1 class="h6">Udělit aplikaci přístup k vašim datúm?</h1>
+            </div>
+            <div class="cell small-12">
+                <input id="input-grant-access" class="button expanded" type="submit" name="grant" value="@AuthorizationDefaults.GrantAccessValue" aria-describedby="input-grant-access">
+            </div>
+            <div class="cell small-12 text-center" style="margin-bottom: 1rem;">
+                <span>nebo</span>
+            </div>
+            <div class="cell small-12">
+                <input id="input-grant-deny" class="button expanded secondary" type="submit" name="grant" value="@AuthorizationDefaults.DenyAccessValue" aria-describedby="input-grant-deny">
+            </div>
+            <div class="cell small-12 text-center">
+                <p class="subheader">V případě potíží s udělením přístupu k vaší aplikaci kontaktujte správce aplikace.</p>
+            </div>
+        </div>
+    </form>
+</div>

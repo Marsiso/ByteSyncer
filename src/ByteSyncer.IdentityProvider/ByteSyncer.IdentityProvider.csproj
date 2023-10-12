@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\libs\fontawesome6\" />
-    <Folder Include="wwwroot\libs\mdb5\" />
+    <Folder Include="wwwroot\libs\fontawesome\" />
+    <Folder Include="wwwroot\libs\foundation\" />
   </ItemGroup>
 
 </Project>

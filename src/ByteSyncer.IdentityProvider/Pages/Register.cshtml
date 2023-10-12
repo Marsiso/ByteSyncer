@@ -1,0 +1,136 @@
+﻿@page
+@using Microsoft.AspNetCore.Html;
+@model RegisterModel
+@{
+    ViewBag.Title = "Sign up";
+}
+
+<div>
+    <form method="post" asp-page-handler="Register" data-abide novalidate>
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-12">
+                @if (Model.HasValidationErrors(nameof(Model.Form.Email)))
+                {
+                    <label for="login-input-email">
+                        Emailová adresa
+                        <input id="login-input-email" type="text" asp-for="Form.Email" placeholder="petr.pavel@@centrum.cz" aria-errormessage="login-input-email-error" data-invalid aria-invalid="true" required class="is-invalid">
+                        <span class="form-error is-visible">
+                            @Model.GetFirstValidationError(nameof(Model.Form.Email))
+                        </span>
+                    </label>
+                }
+                else
+                {
+                    <label for="login-input-email">
+                        Emailová adresa
+                        <input id="login-input-email" type="text" asp-for="Form.Email" placeholder="petr.pavel@@centrum.cz" required>
+                    </label>
+                }
+            </div>
+            <div class="cell small-12">
+                @if (Model.HasValidationErrors(nameof(Model.Form.GivenName)))
+                {
+                    <label for="login-input-given-name">
+                        Jméno
+                        <input id="login-input-given-name" type="text" asp-for="Form.GivenName" placeholder="Petr" aria-errormessage="login-input-given-name-error" data-invalid aria-invalid="true" required class="is-invalid">
+                        <span class="form-error is-visible">
+                            @Model.GetFirstValidationError(nameof(Model.Form.GivenName))
+                        </span>
+                    </label>
+                }
+                else
+                {
+                    <label for="login-input-given-name">
+                        Jméno
+                        <input id="login-input-given-name" type="text" asp-for="Form.GivenName" placeholder="Petr" required>
+                    </label>
+                }
+            </div>
+            <div class="cell small-12">
+                @if (Model.HasValidationErrors(nameof(Model.Form.FamilyName)))
+                {
+                    <label for="login-input-family-name">
+                        Příjmení
+                        <input id="login-input-family-name" type="text" asp-for="Form.FamilyName" placeholder="Pavel" aria-errormessage="login-input-family-name-error" data-invalid aria-invalid="true" required class="is-invalid">
+                        <span class="form-error is-visible">
+                            @Model.GetFirstValidationError(nameof(Model.Form.FamilyName))
+                        </span>
+                    </label>
+                }
+                else
+                {
+                    <label for="login-input-family-name">
+                        Příjmení
+                        <input id="login-input-family-name" type="text" asp-for="Form.FamilyName" placeholder="Pavel" required>
+                    </label>
+                }
+            </div>
+            <div class="cell small-12">
+                @if (Model.HasValidationErrors(nameof(Model.Form.Password)))
+                {
+                    <label for="login-input-password">
+                        Heslo
+                        <input id="login-input-password" type="password" asp-for="Form.Password" aria-errormessage="login-input-password-error" data-invalid aria-invalid="true" required class="is-invalid">
+                        <span class="form-error is-visible">
+                            @Model.GetFirstValidationError(nameof(Model.Form.Password))
+                        </span>
+                    </label>
+                }
+                else
+                {
+                    <label for="login-input-password">
+                        Heslo
+                        <input id="login-input-password" type="password" asp-for="Form.Password" required>
+                    </label>
+                }
+            </div>
+            <div class="cell small-12">
+                @if (Model.HasValidationErrors(nameof(Model.Form.PasswordRepeat)))
+                {
+                    <label for="login-input-password-repeat">
+                        Opakování hesla
+                        <input id="login-input-password-repeat" type="password" asp-for="Form.PasswordRepeat" aria-errormessage="login-input-password-repeat-error" data-invalid aria-invalid="true" required class="is-invalid">
+                        <span class="form-error is-visible">
+                            @Model.GetFirstValidationError(nameof(Model.Form.PasswordRepeat))
+                        </span>
+                    </label>
+                }
+                else
+                {
+                    <label for="login-input-password-repeat">
+                        Opakování hesla
+                        <input id="login-input-password-repeat" type="password" asp-for="Form.PasswordRepeat" required>
+                    </label>
+                }
+            </div>
+        </div>
+        <div class="grid-x grid-margin-x">
+            <fieldset class="cell small-12">
+                <button type="submit" class="button expanded">Registrovat se</button>
+            </fieldset>
+            <div class="cell small-12 text-center" style="margin-bottom: 1rem;">
+                <span>nebo</span>
+            </div>
+            <fieldset class="cell small-12">
+                <a href="/Index" class="button expanded secondary">Přihlásit se</a>
+            </fieldset>
+        </div>
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-12">
+                <div class="button-group">
+                    <form method="post" asp-page-handler="SetCulture">
+                        <input type="hidden" name="culture" value="cs" />
+                        <input type="hidden" name="redirectUri" value="@Model.ReturnUrl" />
+                        <button type="submit" class="button-link">Czech</button>
+                    </form>
+                    <span>&nbsp;|&nbsp;</span>
+                    <form method="post" asp-page-handler="SetCulture">
+                        <input type="hidden" name="culture" value="en" />
+                        <input type="hidden" name="redirectUri" value="@Model.ReturnUrl" />
+                        <button type="submit" class="button-link">English</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
