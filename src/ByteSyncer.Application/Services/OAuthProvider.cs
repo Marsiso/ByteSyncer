@@ -6,7 +6,7 @@ using OpenIddict.Abstractions;
 
 namespace ByteSyncer.Application.Services
 {
-    public class IdentityResolver
+    public class OAuthProvider
     {
         public IDictionary<string, StringValues> ParseOAuthParameters(HttpContext httpContext, List<string>? excluding = null)
         {

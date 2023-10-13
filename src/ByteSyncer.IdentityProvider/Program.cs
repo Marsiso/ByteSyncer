@@ -4,10 +4,13 @@ using ByteSyncer.Application.Application.Validators;
 using ByteSyncer.Application.Options;
 using ByteSyncer.Application.Services;
 using ByteSyncer.Core.Application.Commands;
+using ByteSyncer.Data.EF;
 using ByteSyncer.Domain.Contracts;
 using ByteSyncer.IdentityProvider;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.IdentityModel.Tokens;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +18,41 @@ IServiceCollection services = builder.Services;
 IConfiguration configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
 
+services.AddControllers();
 services.AddRazorPages();
 
-services.AddAuthentication()
-        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(c =>
+        {
+            c.LoginPath = "/";
+        });
+
+services.AddOpenIddict()
+        .AddCore(options =>
+        {
+            options.UseEntityFrameworkCore()
+                   .UseDbContext<DataContext>();
+        })
+        .AddServer(options =>
+        {
+            options.SetAuthorizationEndpointUris("connect/authorize")
+                   .SetLogoutEndpointUris("connect/logout")
+                   .SetTokenEndpointUris("connect/token");
+
+            options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
+
+            options.AllowAuthorizationCodeFlow();
+
+            options.AddEncryptionKey(new SymmetricSecurityKey(Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
+
+            options.AddDevelopmentEncryptionCertificate()
+                   .AddDevelopmentSigningCertificate();
+
+            options.UseAspNetCore()
+                   .EnableAuthorizationEndpointPassthrough()
+                   .EnableLogoutEndpointPassthrough()
+                   .EnableTokenEndpointPassthrough();
+        });
 
 services.AddOptions<PasswordProtectorOptions>()
         .Configure(options =>
@@ -33,15 +67,40 @@ services.AddSingleton(configuration)
         .AddAutoMapper(typeof(UserProfile))
         .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetAssembly(typeof(RegisterCommand))))
         .AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(RegisterCommandValidator)))
-        .AddSingleton<IPasswordProtector, PasswordProtector>();
+        .AddSingleton<IPasswordProtector, PasswordProtector>()
+        .AddTransient<OAuthProvider>()
+        .AddTransient<ClientsSeeder>();
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("https://localhost:7183")
+              .AllowAnyHeader();
+    });
+});
 
 WebApplication application = builder.Build();
 
 application.UseMigrations();
 
+using (IServiceScope scope = application.Services.CreateScope())
+{
+    ClientsSeeder seeder = scope.ServiceProvider.GetRequiredService<ClientsSeeder>();
+
+    seeder.AddClients().GetAwaiter().GetResult();
+    seeder.AddScopes().GetAwaiter().GetResult();
+}
+
 if (environment.IsDevelopment())
 {
-    application.UseDeveloperExceptionPage();
+    application.UseDeveloperExceptionPage()
+               .UseSwagger()
+               .UseSwaggerUI();
 }
 else
 {
@@ -50,12 +109,14 @@ else
 }
 
 application.UseHttpsRedirection()
+           .UseCors()
            .UseStaticFiles();
 
 application.UseRouting()
            .UseAuthentication()
            .UseAuthorization();
 
+application.MapControllers();
 application.MapRazorPages();
 
 application.Run();
