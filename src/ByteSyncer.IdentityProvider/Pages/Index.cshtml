@@ -1,4 +1,5 @@
 ﻿@page
+@using System.Web;
 @model IndexModel
 @{
     ViewBag.Title = "Přihlásit se";
@@ -55,7 +56,7 @@
                 <span>nebo</span>
             </div>
             <fieldset class="cell small-12">
-                <a href="/Register" class="button expanded secondary">Registrovat se</a>
+                <a href="@Model.GetRegisterPageRedirectUrl()" class="button expanded secondary">Registrovat se</a>
             </fieldset>
         </div>
     </form>

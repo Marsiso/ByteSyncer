@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
+using System.Web;
 using AutoMapper;
 using ByteSyncer.Core.Application.Commands;
 using ByteSyncer.Domain.Application.DataTransferObjects;
@@ -23,7 +24,7 @@ namespace ByteSyncer.IdentityProvider.Pages
             _mediator = mediator;
         }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public string? ReturnUrl { get; set; }
 
         [BindProperty]
@@ -31,10 +32,8 @@ namespace ByteSyncer.IdentityProvider.Pages
 
         public EntityValidationException? ValidationException { get; set; }
 
-        public IActionResult OnGet(string? returnUrl)
+        public IActionResult OnGet()
         {
-            ReturnUrl = returnUrl;
-
             return Page();
         }
 
@@ -106,6 +105,18 @@ namespace ByteSyncer.IdentityProvider.Pages
             }
 
             return message;
+        }
+
+        public string GetRegisterPageRedirectUrl()
+        {
+            if (string.IsNullOrWhiteSpace(ReturnUrl))
+            {
+                return "/Register";
+            }
+            else
+            {
+                return $"/Register?ReturnUrl={HttpUtility.UrlEncode(ReturnUrl)}";
+            }
         }
     }
 }

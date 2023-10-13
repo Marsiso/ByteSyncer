@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Web;
 using AutoMapper;
 using ByteSyncer.Core.Application.Commands;
 using ByteSyncer.Domain.Application.DataTransferObjects;
@@ -42,7 +43,7 @@ namespace ByteSyncer.IdentityProvider.Pages
 
             if (commandResult.Result == RegisterCommandResultType.Succeded)
             {
-                return Redirect("/Index");
+                return Redirect(GetLoginPageRedirectUrl());
             }
 
             ValidationException = commandResult?.Exception as EntityValidationException;
@@ -79,6 +80,18 @@ namespace ByteSyncer.IdentityProvider.Pages
             }
 
             return message;
+        }
+
+        public string GetLoginPageRedirectUrl()
+        {
+            if (string.IsNullOrWhiteSpace(ReturnUrl))
+            {
+                return "/Index";
+            }
+            else
+            {
+                return $"/Index?ReturnUrl={HttpUtility.UrlEncode(ReturnUrl)}";
+            }
         }
     }
 }

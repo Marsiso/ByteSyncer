@@ -1,5 +1,6 @@
 ﻿@page
 @using Microsoft.AspNetCore.Html;
+@using System.Web;
 @model RegisterModel
 @{
     ViewBag.Title = "Sign up";
@@ -113,7 +114,7 @@
                 <span>nebo</span>
             </div>
             <fieldset class="cell small-12">
-                <a href="/Index" class="button expanded secondary">Přihlásit se</a>
+                <a href="@Model.GetLoginPageRedirectUrl()" class="button expanded secondary">Přihlásit se</a>
             </fieldset>
         </div>
     </form>
