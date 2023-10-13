@@ -6,7 +6,7 @@ using FluentValidation.Results;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace ByteSyncer.Core.Files.Commands
+namespace ByteSyncer.Core.CQRS.Files.Commands
 {
     public record CreateFolderCommand(string? Name) : IRequest<CreateFolderCommandResult>;
 
@@ -47,7 +47,19 @@ namespace ByteSyncer.Core.Files.Commands
                 await _context.Folders.AddAsync(folder, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return new CreateFolderCommandResult(CreateFolderCommandResultType.Succeded, folder, default);
+                return new CreateFolderCommandResult(CreateFolderCommandResultType.FolderCreated, folder, default);
+            }
+            catch (OperationCanceledException exception)
+            {
+                _logger.LogError(exception.Message);
+
+                return new CreateFolderCommandResult(CreateFolderCommandResultType.OperationCanceled, default, exception);
+            }
+            catch (TimeoutException exception)
+            {
+                _logger.LogError(exception.Message);
+
+                return new CreateFolderCommandResult(CreateFolderCommandResultType.OperationTimedout, default, exception);
             }
             catch (Exception exception)
             {
@@ -58,11 +70,13 @@ namespace ByteSyncer.Core.Files.Commands
         }
     }
 
-    public record CreateFolderCommandResult(CreateFolderCommandResultType Result, Folder? Folder, Exception? Exception);
+    public record CreateFolderCommandResult(CreateFolderCommandResultType ResultType, Folder? Result, Exception? Exception) : RequestResultTypeClassBase<CreateFolderCommandResultType, Folder>(ResultType, Result, Exception);
 
     public enum CreateFolderCommandResultType
     {
-        Succeded,
+        FolderCreated,
+        OperationCanceled,
+        OperationTimedout,
         ValidationFailure,
         InternalServerError
     }

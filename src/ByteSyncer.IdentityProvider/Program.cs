@@ -3,7 +3,7 @@ using ByteSyncer.Application.Application.Mappings;
 using ByteSyncer.Application.Application.Validators;
 using ByteSyncer.Application.Options;
 using ByteSyncer.Application.Services;
-using ByteSyncer.Core.Application.Commands;
+using ByteSyncer.Core.CQRS.Application.Commands;
 using ByteSyncer.Data.EF;
 using ByteSyncer.Domain.Contracts;
 using ByteSyncer.IdentityProvider;
@@ -24,7 +24,9 @@ services.AddRazorPages();
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>
         {
+            options.Cookie.SameSite = SameSiteMode.Strict;
             options.LoginPath = "/Index";
+            options.ExpireTimeSpan = TimeSpan.FromDays(1);
         });
 
 services.AddOpenIddict()
@@ -44,7 +46,9 @@ services.AddOpenIddict()
 
             options.AllowAuthorizationCodeFlow();
 
-            options.AddEncryptionKey(new SymmetricSecurityKey(Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
+            byte[] keyBytes = Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=");
+            SymmetricSecurityKey symmetricSecurityKey = new SymmetricSecurityKey(keyBytes);
+            options.AddEncryptionKey(symmetricSecurityKey);
 
             options.AddDevelopmentEncryptionCertificate()
                    .AddDevelopmentSigningCertificate();
@@ -67,8 +71,8 @@ services.AddOptions<PasswordProtectorOptions>()
 services.AddSingleton(configuration)
         .AddDbSession(configuration, environment)
         .AddAutoMapper(typeof(UserProfile))
-        .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetAssembly(typeof(RegisterCommand))))
-        .AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(RegisterCommandValidator)))
+        .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetAssembly(typeof(RegisterUserCommand))))
+        .AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(RegisterUserCommandValidator)))
         .AddSingleton<IPasswordProtector, PasswordProtector>()
         .AddTransient<AuthorizationProvider>()
         .AddTransient<ClientsSeeder>();
@@ -94,7 +98,7 @@ using (IServiceScope scope = application.Services.CreateScope())
 {
     ClientsSeeder seeder = scope.ServiceProvider.GetRequiredService<ClientsSeeder>();
 
-    seeder.AddOidcDebuggerClient().GetAwaiter().GetResult();
+    seeder.AddOIDCDebuggerClient().GetAwaiter().GetResult();
     seeder.AddWebClients().GetAwaiter().GetResult();
     seeder.AddScopes().GetAwaiter().GetResult();
 }

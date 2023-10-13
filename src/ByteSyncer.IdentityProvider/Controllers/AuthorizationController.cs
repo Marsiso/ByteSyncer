@@ -2,7 +2,8 @@
 using System.Security.Claims;
 using System.Web;
 using ByteSyncer.Application.Services;
-using ByteSyncer.Core.Application.Queries;
+using ByteSyncer.Core.CQRS.Application.Queries;
+using ByteSyncer.Domain.Application.Models;
 using ByteSyncer.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore;
@@ -21,20 +22,20 @@ namespace ByteSyncer.IdentityProvider.Controllers
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
-        private readonly AuthorizationProvider _authProvider;
+        private readonly AuthorizationProvider _authorizationProvider;
         private readonly IMediator _mediator;
         private readonly IOpenIddictApplicationManager _applicationManager;
         private readonly IOpenIddictAuthorizationManager _authorizationManager;
         private readonly IOpenIddictScopeManager _scopeManager;
 
         public AuthorizationController(
-           AuthorizationProvider authProvider,
+           AuthorizationProvider authorizationProvider,
            IMediator mediator,
            IOpenIddictApplicationManager applicationManager,
            IOpenIddictAuthorizationManager authorizationManager,
            IOpenIddictScopeManager scopeManager)
         {
-            _authProvider = authProvider;
+            _authorizationProvider = authorizationProvider;
             _mediator = mediator;
             _applicationManager = applicationManager;
             _authorizationManager = authorizationManager;
@@ -43,7 +44,7 @@ namespace ByteSyncer.IdentityProvider.Controllers
 
         [HttpGet("~/connect/authorize")]
         [HttpPost("~/connect/authorize")]
-        public async Task<IActionResult> Authorize()
+        public async Task<IActionResult> Authorize(CancellationToken cancellationToken)
         {
             OpenIddictRequest request = HttpContext.GetOpenIddictServerRequest() ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
@@ -51,26 +52,28 @@ namespace ByteSyncer.IdentityProvider.Controllers
 
             if (await _applicationManager.GetConsentTypeAsync(application) != ConsentTypes.Explicit)
             {
-                Dictionary<string, string?> authenticationPropertiesItems = new Dictionary<string, string?>
+                Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
                 {
                     [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidClient,
                     [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Only clients with explicit consent type are allowed."
                 };
 
-                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertiesItems);
+                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertyDictionary);
 
-                return Forbid(authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, properties: authenticationProperties);
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: authenticationProperties);
             }
 
-            IDictionary<string, StringValues> parameters = _authProvider.ParseOAuthParameters(HttpContext, new List<string> { Parameters.Prompt });
+            IDictionary<string, StringValues> parameters = _authorizationProvider.ParseOAuth2Parameters(HttpContext, new List<string> { Parameters.Prompt });
 
             AuthenticateResult result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            if (!_authProvider.IsAuthenticated(result, request))
+            if (!_authorizationProvider.IsAuthenticated(result, request))
             {
                 return Challenge(properties: new AuthenticationProperties
                 {
-                    RedirectUri = _authProvider.BuildRedirectUrl(HttpContext.Request, parameters)
+                    RedirectUri = _authorizationProvider.BuildRedirectUrl(HttpContext.Request, parameters)
                 }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
             }
 
@@ -82,38 +85,68 @@ namespace ByteSyncer.IdentityProvider.Controllers
 
                 return Challenge(properties: new AuthenticationProperties
                 {
-                    RedirectUri = _authProvider.BuildRedirectUrl(HttpContext.Request, parameters)
+                    RedirectUri = _authorizationProvider.BuildRedirectUrl(HttpContext.Request, parameters)
                 }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
             }
 
             string consentClaim = result.Principal.GetClaim(AuthorizationDefaults.ConsentNaming);
 
-            // It might be extended in a way that consent claim will contain list of allowed client IDs.
             if (consentClaim != AuthorizationDefaults.GrantAccessValue || request.HasPrompt(Prompts.Consent))
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-                string returnUrl = _authProvider.BuildRedirectUrl(HttpContext.Request, parameters);
+                string returnUrl = _authorizationProvider.BuildRedirectUrl(HttpContext.Request, parameters);
                 string returnUrlEncoded = HttpUtility.UrlEncode(returnUrl);
                 string consentRedirectUrl = $"/Consent?returnUrl={returnUrlEncoded}";
 
                 return Redirect(consentRedirectUrl);
             }
 
-            string? userEmail = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
+            string? email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
+
+            FindUserUsingEmailQuery query = new FindUserUsingEmailQuery(email);
+            FindUserUsingEmailQueryResult queryResult = await _mediator.Send(query, cancellationToken);
+
+            if (queryResult.ResultType == FindUserUsingEmailQueryResultType.UserNotFound)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return Challenge(properties: new AuthenticationProperties
+                {
+                    RedirectUri = _authorizationProvider.BuildRedirectUrl(HttpContext.Request, parameters)
+                }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
+            }
+
+            if (queryResult.ResultType != FindUserUsingEmailQueryResultType.UserFound)
+            {
+                Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ServerError,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "An unexpected error has occurred during the user info retrieval."
+                };
+
+                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertyDictionary);
+
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: authenticationProperties);
+            }
 
             ClaimsIdentity identity = new ClaimsIdentity(
                 authenticationType: TokenValidationParameters.DefaultAuthenticationType,
                 nameType: Claims.Name,
                 roleType: Claims.Role);
 
-            ImmutableArray<string> roles = new List<string> { "user", "admin" }.ToImmutableArray();
             ImmutableArray<string> scopes = request.GetScopes();
             List<string> resources = await _scopeManager.ListResourcesAsync(scopes).ToListAsync();
 
-            identity.SetClaim(Claims.Subject, userEmail)
-                    .SetClaim(Claims.Email, userEmail)
-                    .SetClaim(Claims.Name, userEmail)
+            User user = queryResult.GetResult();
+
+            ImmutableArray<string> roles = user.UserRoles.Select(userRole => userRole.Role.Name)
+                                                         .ToImmutableArray();
+
+            identity.SetClaim(Claims.Subject, user.ID)
+                    .SetClaim(Claims.Email, user.Email)
                     .SetClaims(Claims.Role, roles)
                     .SetScopes(scopes)
                     .SetResources(resources)
@@ -125,7 +158,7 @@ namespace ByteSyncer.IdentityProvider.Controllers
         }
 
         [HttpPost("~/connect/token")]
-        public async Task<IActionResult> Exchange()
+        public async Task<IActionResult> Exchange(CancellationToken cancellationToken)
         {
             OpenIddictRequest request = HttpContext.GetOpenIddictServerRequest() ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
@@ -136,36 +169,62 @@ namespace ByteSyncer.IdentityProvider.Controllers
 
             AuthenticateResult result = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
-            string? userEmail = result.Principal.GetClaim(Claims.Subject);
+            string? email = result.Principal.GetClaim(Claims.Email);
 
-            if (string.IsNullOrEmpty(userEmail))
+            FindUserUsingEmailQuery query = new FindUserUsingEmailQuery(email);
+            FindUserUsingEmailQueryResult queryResult = await _mediator.Send(query, cancellationToken);
+
+            if (queryResult.ResultType == FindUserUsingEmailQueryResultType.UserFound)
             {
-                Dictionary<string, string?> authenticationPropertiesItems = new Dictionary<string, string?>
+                User user = queryResult.GetResult();
+
+                ClaimsIdentity identity = new ClaimsIdentity(result.Principal.Claims,
+                      authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+                      nameType: Claims.Name,
+                      roleType: Claims.Role);
+
+                ImmutableArray<string> roles = user.UserRoles.Select(userRole => userRole.Role.Name)
+                                                             .ToImmutableArray();
+
+                identity.SetClaim(Claims.Subject, user.ID)
+                        .SetClaim(Claims.Email, user.Email)
+                        .SetClaim(Claims.Name, $"{user.GivenName} {user.FamilyName}")
+                        .SetClaims(Claims.Role, roles);
+
+                identity.SetDestinations(claim => AuthorizationProvider.GetDestinations(identity, claim));
+
+                ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
+
+                return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+            else if (queryResult.ResultType == FindUserUsingEmailQueryResultType.UserNotFound)
+            {
+                Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
                 {
                     [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
                     [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Cannot find user from the token."
                 };
 
-                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertiesItems);
+                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertyDictionary);
 
                 return Forbid(
-                   authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                   properties: authenticationProperties);
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: authenticationProperties);
             }
+            else
+            {
+                Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ServerError,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "An unexpected error has occurred during the user info retrieval."
+                };
 
-            ClaimsIdentity identity = new ClaimsIdentity(result.Principal.Claims,
-                  authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-                  nameType: Claims.Name,
-                  roleType: Claims.Role);
+                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertyDictionary);
 
-            identity.SetClaim(Claims.Subject, userEmail)
-                    .SetClaim(Claims.Email, userEmail)
-                    .SetClaim(Claims.Name, userEmail)
-                    .SetClaims(Claims.Role, new List<string> { "user", "admin" }.ToImmutableArray());
-
-            identity.SetDestinations(claim => AuthorizationProvider.GetDestinations(identity, claim));
-
-            return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: authenticationProperties);
+            }
         }
 
         [HttpPost("~/connect/logout")]
@@ -184,62 +243,68 @@ namespace ByteSyncer.IdentityProvider.Controllers
         [Authorize(AuthenticationSchemes = OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)]
         [HttpGet("~/connect/userinfo")]
         [HttpPost("~/connect/userinfo")]
-        public async Task<IActionResult> Userinfo()
+        public async Task<IActionResult> Userinfo(CancellationToken cancellationToken)
         {
-            string? email = User.GetClaim(Claims.Subject);
+            string? email = User.GetClaim(Claims.Email);
 
-            bool emailExists = false;
-            if (!string.IsNullOrWhiteSpace(email))
+            FindUserUsingEmailQuery query = new FindUserUsingEmailQuery(email);
+            FindUserUsingEmailQueryResult queryResult = await _mediator.Send(query, cancellationToken);
+
+            if (queryResult.ResultType == FindUserUsingEmailQueryResultType.UserFound)
             {
-                EmailExistsQuery emailExistsQuery = new EmailExistsQuery(email);
-                EmailExistsQueryResult emailExistsQueryResult = await _mediator.Send(emailExistsQuery);
+                User user = queryResult.GetResult();
 
-                emailExists = emailExistsQueryResult.Exists;
+                Dictionary<string, object> claims = new Dictionary<string, object>(StringComparer.Ordinal)
+                {
+                    [Claims.Subject] = user.ID,
+                };
+
+                if (User.HasScope(Scopes.Email))
+                {
+                    claims[Claims.Email] = user.Email;
+                }
+
+                if (User.HasScope(Scopes.Profile))
+                {
+                    claims[Claims.GivenName] = user.GivenName;
+                    claims[Claims.FamilyName] = user.FamilyName;
+                }
+
+                if (User.HasScope(Scopes.Roles))
+                {
+                    ImmutableArray<string> roleNames = user.UserRoles.Select(userRole => userRole.Role.Name)
+                                                                     .ToImmutableArray();
+
+                    claims[Claims.FamilyName] = roleNames;
+                }
+
+                return Ok(claims);
             }
-
-            if (!emailExists)
+            else if (queryResult.ResultType == FindUserUsingEmailQueryResultType.UserNotFound)
             {
-                Dictionary<string, string?> authenticationPropertiesItems = new Dictionary<string, string?>
+                Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
                 {
                     [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidToken,
                     [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The specified access token is bound to an account that no longer exists."
                 };
 
-                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertiesItems);
+                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertyDictionary);
 
                 return Challenge(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
                     properties: authenticationProperties);
             }
-
-            FindUserByEmailQuery findUserByEmailQuery = new FindUserByEmailQuery(email);
-            FindUserByEmailQueryResult findUserByEmailQueryResult = await _mediator.Send(findUserByEmailQuery);
-
-            if (findUserByEmailQueryResult.Result == FindUserByEmailQueryResultType.Succeded)
-            {
-                Dictionary<string, object> claims = new Dictionary<string, object>(StringComparer.Ordinal)
-                {
-                    [Claims.Subject] = email,
-                };
-
-                if (User.HasScope(Scopes.Email))
-                {
-                    claims[Claims.Email] = email;
-                }
-
-                return Ok(claims);
-            }
             else
             {
-                Dictionary<string, string?> authenticationPropertiesItems = new Dictionary<string, string?>
+                Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
                 {
                     [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ServerError,
                     [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "An unexpected error has occurred during the user info retrieval."
                 };
 
-                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertiesItems);
+                AuthenticationProperties authenticationProperties = new AuthenticationProperties(authenticationPropertyDictionary);
 
-                return Challenge(
+                return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
                     properties: authenticationProperties);
             }

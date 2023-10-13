@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using ByteSyncer.Core.Files.Commands;
+using ByteSyncer.Core.CQRS.Files.Commands;
 using ByteSyncer.Domain.Files.Models;
 
 namespace ByteSyncer.Application.Files.Mappings

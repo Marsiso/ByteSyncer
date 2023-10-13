@@ -1,4 +1,5 @@
 ﻿using ByteSyncer.Core.Helpers;
+using CommunityToolkit.Diagnostics;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Options;
@@ -24,7 +25,7 @@ namespace ByteSyncer.Application.Validations
                 return ValidateOptionsResult.Skip;
             }
 
-            ArgumentNullException.ThrowIfNull(options);
+            Guard.IsNotNull(options);
 
             ValidationContext<TOptions> validationContext = new ValidationContext<TOptions>(options);
             ValidationResult validationResult = OptionsValidator.Validate(validationContext);

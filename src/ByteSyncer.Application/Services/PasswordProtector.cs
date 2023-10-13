@@ -3,6 +3,7 @@ using System.Text;
 using ByteSyncer.Application.External;
 using ByteSyncer.Application.Options;
 using ByteSyncer.Domain.Contracts;
+using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Options;
 
 namespace ByteSyncer.Application.Services
@@ -18,7 +19,7 @@ namespace ByteSyncer.Application.Services
 
         public (string, string) HashPassword(string password)
         {
-            ArgumentException.ThrowIfNullOrEmpty(password, nameof(password));
+            Guard.IsNotNullOrWhiteSpace(password);
 
             string passwordWithPepper = password + Options.Pepper;
 
@@ -47,9 +48,9 @@ namespace ByteSyncer.Application.Services
 
         public bool VerifyPassword(string password, string passwordKey, string passwordSalt)
         {
-            ArgumentException.ThrowIfNullOrEmpty(password, nameof(password));
-            ArgumentException.ThrowIfNullOrEmpty(passwordKey, nameof(passwordKey));
-            ArgumentException.ThrowIfNullOrEmpty(passwordSalt, nameof(passwordSalt));
+            Guard.IsNotNullOrWhiteSpace(password);
+            Guard.IsNotNullOrWhiteSpace(passwordKey);
+            Guard.IsNotNullOrWhiteSpace(passwordSalt);
 
             string passwordWithPepper = password + Options.Pepper;
 

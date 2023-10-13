@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using CommunityToolkit.Diagnostics;
+using FluentValidation.Results;
 
 namespace ByteSyncer.Core.Helpers
 {
@@ -6,6 +7,8 @@ namespace ByteSyncer.Core.Helpers
     {
         public static Dictionary<string, string[]> DistinctErrorsByProperty(ValidationResult validationResult)
         {
+            Guard.IsNotNull(validationResult);
+
             return validationResult.Errors
                 .GroupBy(validationFailure =>
                     validationFailure.PropertyName,

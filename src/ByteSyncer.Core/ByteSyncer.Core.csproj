@@ -7,16 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CQRS\Files\Queries\**" />
+    <EmbeddedResource Remove="CQRS\Files\Queries\**" />
+    <None Remove="CQRS\Files\Queries\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="12.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ByteSyncer.Data\ByteSyncer.Data.csproj" />
     <ProjectReference Include="..\ByteSyncer.Domain\ByteSyncer.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Files\Queries\" />
   </ItemGroup>
 
 </Project>

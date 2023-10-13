@@ -8,7 +8,7 @@ namespace ByteSyncer.Application.Services
 {
     public class AuthorizationProvider
     {
-        public IDictionary<string, StringValues> ParseOAuthParameters(HttpContext httpContext, List<string>? excluding = null)
+        public IDictionary<string, StringValues> ParseOAuth2Parameters(HttpContext httpContext, List<string>? excluding = null)
         {
             excluding ??= new List<string>();
 
@@ -27,9 +27,9 @@ namespace ByteSyncer.Application.Services
             return parameters;
         }
 
-        public string BuildRedirectUrl(HttpRequest request, IDictionary<string, StringValues> oAuthParameters)
+        public string BuildRedirectUrl(HttpRequest request, IDictionary<string, StringValues> parameters)
         {
-            string url = request.PathBase + request.Path + QueryString.Create(oAuthParameters);
+            string url = request.PathBase + request.Path + QueryString.Create(parameters);
             return url;
         }
 
@@ -40,7 +40,7 @@ namespace ByteSyncer.Application.Services
                 return false;
             }
 
-            if (request.MaxAge.HasValue && authenticateResult.Properties != null)
+            if (request.MaxAge.HasValue && authenticateResult.Properties is not null)
             {
                 TimeSpan maxAgeSeconds = TimeSpan.FromSeconds(request.MaxAge.Value);
 

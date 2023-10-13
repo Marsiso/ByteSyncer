@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using ByteSyncer.Core.Application.Commands;
-using ByteSyncer.Core.Application.Queries;
+using ByteSyncer.Core.CQRS.Application.Commands;
+using ByteSyncer.Core.CQRS.Application.Queries;
 using ByteSyncer.Domain.Application.DataTransferObjects;
 using ByteSyncer.Domain.Application.Models;
 
@@ -12,14 +12,14 @@ namespace ByteSyncer.Application.Application.Mappings
         {
             CreateMap<User, User>();
             CreateMap<User, LoginInput>().ReverseMap();
-            CreateMap<User, LoginCommand>().ReverseMap();
+            CreateMap<User, ValidateCredentialsCommand>().ReverseMap();
             CreateMap<User, RegisterInput>().ReverseMap();
-            CreateMap<User, RegisterCommand>().ReverseMap();
+            CreateMap<User, RegisterUserCommand>().ReverseMap();
 
-            CreateMap<LoginInput, LoginCommand>().ReverseMap();
-            CreateMap<RegisterInput, RegisterCommand>().ReverseMap();
+            CreateMap<LoginInput, ValidateCredentialsCommand>().ReverseMap();
+            CreateMap<RegisterInput, RegisterUserCommand>().ReverseMap();
 
-            CreateMap<LoginCommand, FindUserByEmailQuery>().ReverseMap();
+            CreateMap<ValidateCredentialsCommand, FindUserUsingEmailQuery>().ReverseMap();
         }
     }
 }

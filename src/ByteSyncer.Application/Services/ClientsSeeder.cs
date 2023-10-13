@@ -23,7 +23,7 @@ namespace ByteSyncer.Application.Services
 
             object? apiScope = await manager.FindByNameAsync("api1");
 
-            if (apiScope != null)
+            if (apiScope is not null)
             {
                 await manager.DeleteAsync(apiScope);
             }
@@ -33,9 +33,9 @@ namespace ByteSyncer.Application.Services
                 DisplayName = "Api scope",
                 Name = "api1",
                 Resources =
-            {
-               "resource_server_1"
-            }
+                {
+                   "resource_server_1"
+                }
             });
         }
 
@@ -90,7 +90,7 @@ namespace ByteSyncer.Application.Services
             });
         }
 
-        public async Task AddOidcDebuggerClient()
+        public async Task AddOIDCDebuggerClient()
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
 
@@ -113,25 +113,25 @@ namespace ByteSyncer.Application.Services
                 ConsentType = ConsentTypes.Explicit,
                 DisplayName = "Postman client application",
                 RedirectUris =
-         {
-            new Uri("https://oidcdebugger.com/debug")
-         },
+                 {
+                    new Uri("https://oidcdebugger.com/debug")
+                 },
                 PostLogoutRedirectUris =
-         {
-            new Uri("https://oauth.pstmn.io/v1/callback")
-         },
+                 {
+                    new Uri("https://oauth.pstmn.io/v1/callback")
+                 },
                 Permissions =
-         {
-            Permissions.Endpoints.Authorization,
-            Permissions.Endpoints.Logout,
-            Permissions.Endpoints.Token,
-            Permissions.GrantTypes.AuthorizationCode,
-            Permissions.ResponseTypes.Code,
-            Permissions.Scopes.Email,
-            Permissions.Scopes.Profile,
-            Permissions.Scopes.Roles,
-            $"{Permissions.Prefixes.Scope}api1"
-         },
+                 {
+                    Permissions.Endpoints.Authorization,
+                    Permissions.Endpoints.Logout,
+                    Permissions.Endpoints.Token,
+                    Permissions.GrantTypes.AuthorizationCode,
+                    Permissions.ResponseTypes.Code,
+                    Permissions.Scopes.Email,
+                    Permissions.Scopes.Profile,
+                    Permissions.Scopes.Roles,
+                    $"{Permissions.Prefixes.Scope}api1"
+                 },
                 //Requirements =
                 //{
                 //    Requirements.Features.ProofKeyForCodeExchange

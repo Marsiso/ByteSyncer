@@ -1,4 +1,4 @@
-﻿using ByteSyncer.Core.Files.Commands;
+﻿using ByteSyncer.Core.CQRS.Files.Commands;
 using FluentValidation;
 
 namespace ByteSyncer.Application.Files.Validators

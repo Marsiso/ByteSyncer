@@ -2,8 +2,9 @@
 using System.Security.Claims;
 using System.Web;
 using AutoMapper;
-using ByteSyncer.Core.Application.Commands;
+using ByteSyncer.Core.CQRS.Application.Commands;
 using ByteSyncer.Domain.Application.DataTransferObjects;
+using ByteSyncer.Domain.Application.Models;
 using ByteSyncer.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -39,16 +40,18 @@ namespace ByteSyncer.IdentityProvider.Pages
 
         public async Task<IActionResult> OnPostLoginAsync()
         {
-            LoginCommand command = _mapper.Map<LoginCommand>(Form);
-            LoginCommandResult commandResult = await _mediator.Send(command);
+            ValidateCredentialsCommand command = _mapper.Map<ValidateCredentialsCommand>(Form);
+            ValidateCredentialsCommandResult commandResult = await _mediator.Send(command);
 
-            if (commandResult.Result == LoginCommandResultType.Succeded)
+            if (commandResult.ResultType == ValidateCredentialsCommandResultType.ValidCredentials)
             {
+                User user = commandResult.GetResult();
+
                 List<Claim> claims = new List<Claim>()
                 {
-                    new(ClaimTypes.Email, commandResult.User.Email),
-                    new(ClaimTypes.GivenName, commandResult.User.GivenName),
-                    new(ClaimTypes.Surname, commandResult.User.FamilyName)
+                    new(ClaimTypes.Email, user.Email),
+                    new(ClaimTypes.GivenName, user.GivenName),
+                    new(ClaimTypes.Surname, user.FamilyName)
                 };
 
                 ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -115,7 +118,8 @@ namespace ByteSyncer.IdentityProvider.Pages
             }
             else
             {
-                return $"/Register?ReturnUrl={HttpUtility.UrlEncode(ReturnUrl)}";
+                string returnUrlEncoded = HttpUtility.UrlEncode(ReturnUrl);
+                return $"/Register?ReturnUrl={returnUrlEncoded}";
             }
         }
     }

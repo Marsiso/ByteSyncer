@@ -1,16 +1,16 @@
 ﻿using ByteSyncer.Application.Extensions;
-using ByteSyncer.Core.Application.Commands;
-using ByteSyncer.Core.Application.Queries;
+using ByteSyncer.Core.CQRS.Application.Commands;
+using ByteSyncer.Core.CQRS.Application.Queries;
 using FluentValidation;
 using MediatR;
 
 namespace ByteSyncer.Application.Application.Validators
 {
-    public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+    public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
     {
         private readonly IMediator _mediator;
 
-        public RegisterCommandValidator(IMediator mediator)
+        public RegisterUserCommandValidator(IMediator mediator)
         {
             _mediator = mediator;
 
@@ -69,7 +69,7 @@ namespace ByteSyncer.Application.Application.Validators
             EmailExistsQuery query = new EmailExistsQuery(email);
             EmailExistsQueryResult queryResult = await mediator.Send(query, cancellationToken);
 
-            return !queryResult.Exists;
+            return !queryResult.GetResult();
         }
     }
 }

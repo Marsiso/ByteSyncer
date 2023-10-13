@@ -1,5 +1,5 @@
-﻿using ByteSyncer.Core.Application.Commands;
-using ByteSyncer.Core.Application.Queries;
+﻿using ByteSyncer.Core.CQRS.Application.Commands;
+using ByteSyncer.Core.CQRS.Application.Queries;
 using ByteSyncer.Domain.Application.Models;
 using ByteSyncer.Domain.Contracts;
 using FluentValidation;
@@ -7,12 +7,12 @@ using MediatR;
 
 namespace ByteSyncer.Application.Application.Validators
 {
-    public class LoginCommandValidator : AbstractValidator<LoginCommand>
+    public class ValidateCredentialsCommandValidator : AbstractValidator<ValidateCredentialsCommand>
     {
         private readonly IMediator _mediator;
         private readonly IPasswordProtector _passwordProtector;
 
-        public LoginCommandValidator(IMediator mediator, IPasswordProtector passwordProtector)
+        public ValidateCredentialsCommandValidator(IMediator mediator, IPasswordProtector passwordProtector)
         {
             _mediator = mediator;
             _passwordProtector = passwordProtector;
@@ -39,19 +39,19 @@ namespace ByteSyncer.Application.Application.Validators
             });
         }
 
-        private static async Task<bool> HasValidCredentials(LoginCommand command, string? email, IMediator mediator, IPasswordProtector passwordProtector, CancellationToken cancellationToken)
+        private static async Task<bool> HasValidCredentials(ValidateCredentialsCommand command, string? email, IMediator mediator, IPasswordProtector passwordProtector, CancellationToken cancellationToken)
         {
-            FindUserByEmailQuery query = new FindUserByEmailQuery(email);
-            FindUserByEmailQueryResult queryResult = await mediator.Send(query, cancellationToken);
+            FindUserUsingEmailQuery query = new FindUserUsingEmailQuery(email);
+            FindUserUsingEmailQueryResult queryResult = await mediator.Send(query, cancellationToken);
 
-            if (queryResult.Result != FindUserByEmailQueryResultType.Succeded)
+            if (queryResult.ResultType != FindUserUsingEmailQueryResultType.UserFound)
             {
                 return false;
             }
 
-            User? originalUser = queryResult.User;
+            User user = queryResult.GetResult();
 
-            bool passwordMatches = passwordProtector.VerifyPassword(command.Password, originalUser.Password, originalUser.PasswordSalt);
+            bool passwordMatches = passwordProtector.VerifyPassword(command.Password, user.Password, user.PasswordSalt);
 
             return passwordMatches;
         }

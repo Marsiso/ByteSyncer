@@ -3,10 +3,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace ByteSyncer.Core.Application.Queries
+namespace ByteSyncer.Core.CQRS.Application.Queries
 {
     public record EmailExistsQuery(string? Email) : IRequest<EmailExistsQueryResult>;
-
 
     public class EmailExistsQueryHandler : IRequestHandler<EmailExistsQuery, EmailExistsQueryResult>
     {
@@ -29,7 +28,7 @@ namespace ByteSyncer.Core.Application.Queries
             {
                 if (request is null)
                 {
-                    return new EmailExistsQueryResult(EmailExistsQueryResultType.InternalServerError, false, new NullReferenceException("Email exists query can not be a null-reference object."));
+                    return new EmailExistsQueryResult(EmailExistsQueryResultType.InternalServerError, false, new NullReferenceException("Request can not be a null-reference object."));
                 }
 
                 bool emailExists = false;
@@ -38,24 +37,41 @@ namespace ByteSyncer.Core.Application.Queries
                     emailExists = await Query(_context, request.Email);
                 }
 
-                return new EmailExistsQueryResult(EmailExistsQueryResultType.Succeded, emailExists, default);
+                EmailExistsQueryResult queryResult = new EmailExistsQueryResult(EmailExistsQueryResultType.EmailFound, emailExists, default);
+
+                return queryResult;
+            }
+            catch (OperationCanceledException exception)
+            {
+                _logger.LogError(exception.Message);
+
+                return new EmailExistsQueryResult(EmailExistsQueryResultType.OperationCanceled, default, exception);
+            }
+            catch (TimeoutException exception)
+            {
+                _logger.LogError(exception.Message);
+
+                return new EmailExistsQueryResult(EmailExistsQueryResultType.OperationTimedout, default, exception);
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception.Message);
 
-                return new EmailExistsQueryResult(EmailExistsQueryResultType.InternalServerError, false, exception);
+                EmailExistsQueryResult queryResult = new EmailExistsQueryResult(EmailExistsQueryResultType.InternalServerError, false, exception);
+
+                return queryResult;
             }
         }
     }
 
-    public record EmailExistsQueryResult(EmailExistsQueryResultType Result, bool Exists, Exception? exception);
+    public record EmailExistsQueryResult(EmailExistsQueryResultType ResultType, bool? Result, Exception? Exception) : RequestResultTypeStructBase<EmailExistsQueryResultType, bool>(ResultType, Result, Exception);
 
     public enum EmailExistsQueryResultType
     {
-        Succeded,
-        Canceled,
-        Timedout,
+        EmailFound,
+        EmailNotFound,
+        OperationCanceled,
+        OperationTimedout,
         InternalServerError
     }
 }

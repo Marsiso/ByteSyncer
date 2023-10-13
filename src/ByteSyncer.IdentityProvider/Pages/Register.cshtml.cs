@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using AutoMapper;
-using ByteSyncer.Core.Application.Commands;
+using ByteSyncer.Core.CQRS.Application.Commands;
 using ByteSyncer.Domain.Application.DataTransferObjects;
 using ByteSyncer.Domain.Exceptions;
 using MediatR;
@@ -38,10 +38,10 @@ namespace ByteSyncer.IdentityProvider.Pages
 
         public async Task<IActionResult> OnPostRegisterAsync()
         {
-            RegisterCommand command = _mapper.Map<RegisterCommand>(Form);
-            RegisterCommandResult commandResult = await _mediator.Send(command);
+            RegisterUserCommand command = _mapper.Map<RegisterUserCommand>(Form);
+            RegisterUserCommandResult commandResult = await _mediator.Send(command);
 
-            if (commandResult.Result == RegisterCommandResultType.Succeded)
+            if (commandResult.ResultType == RegisterUserCommandResultType.UserCreated)
             {
                 return Redirect(GetLoginPageRedirectUrl());
             }
@@ -90,7 +90,8 @@ namespace ByteSyncer.IdentityProvider.Pages
             }
             else
             {
-                return $"/Index?ReturnUrl={HttpUtility.UrlEncode(ReturnUrl)}";
+                string returnUrlEncoded = HttpUtility.UrlEncode(ReturnUrl);
+                return $"/Index?ReturnUrl={returnUrlEncoded}";
             }
         }
     }
