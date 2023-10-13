@@ -6,7 +6,7 @@ using OpenIddict.Abstractions;
 
 namespace ByteSyncer.Application.Services
 {
-    public class OAuthProvider
+    public class AuthorizationProvider
     {
         public IDictionary<string, StringValues> ParseOAuthParameters(HttpContext httpContext, List<string>? excluding = null)
         {
@@ -62,6 +62,11 @@ namespace ByteSyncer.Application.Services
             if (claim.Type is OpenIddictConstants.Claims.Name or OpenIddictConstants.Claims.Email)
             {
                 destinations.Add(OpenIddictConstants.Destinations.AccessToken);
+
+                if (identity.HasScope(OpenIddictConstants.Scopes.OpenId))
+                {
+                    destinations.Add(OpenIddictConstants.Destinations.IdentityToken);
+                }
             }
 
             return destinations;

@@ -37,7 +37,8 @@ services.AddOpenIddict()
         {
             options.SetAuthorizationEndpointUris("connect/authorize")
                    .SetLogoutEndpointUris("connect/logout")
-                   .SetTokenEndpointUris("connect/token");
+                   .SetTokenEndpointUris("connect/token")
+                   .SetUserinfoEndpointUris("connect/userinfo");
 
             options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
 
@@ -51,7 +52,8 @@ services.AddOpenIddict()
             options.UseAspNetCore()
                    .EnableAuthorizationEndpointPassthrough()
                    .EnableLogoutEndpointPassthrough()
-                   .EnableTokenEndpointPassthrough();
+                   .EnableTokenEndpointPassthrough()
+                   .EnableUserinfoEndpointPassthrough();
         });
 
 services.AddOptions<PasswordProtectorOptions>()
@@ -68,7 +70,7 @@ services.AddSingleton(configuration)
         .AddMediatR(options => options.RegisterServicesFromAssembly(Assembly.GetAssembly(typeof(RegisterCommand))))
         .AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(RegisterCommandValidator)))
         .AddSingleton<IPasswordProtector, PasswordProtector>()
-        .AddTransient<OAuthProvider>()
+        .AddTransient<AuthorizationProvider>()
         .AddTransient<ClientsSeeder>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -92,7 +94,8 @@ using (IServiceScope scope = application.Services.CreateScope())
 {
     ClientsSeeder seeder = scope.ServiceProvider.GetRequiredService<ClientsSeeder>();
 
-    seeder.AddClients().GetAwaiter().GetResult();
+    seeder.AddOidcDebuggerClient().GetAwaiter().GetResult();
+    seeder.AddWebClients().GetAwaiter().GetResult();
     seeder.AddScopes().GetAwaiter().GetResult();
 }
 

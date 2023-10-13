@@ -39,7 +39,7 @@ namespace ByteSyncer.Application.Services
             });
         }
 
-        public async Task AddClients()
+        public async Task AddWebClients()
         {
 
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
@@ -83,6 +83,55 @@ namespace ByteSyncer.Application.Services
                    Permissions.Scopes.Roles,
                    $"{Permissions.Prefixes.Scope}api1"
                 },
+                //Requirements =
+                //{
+                //    Requirements.Features.ProofKeyForCodeExchange
+                //}
+            });
+        }
+
+        public async Task AddOidcDebuggerClient()
+        {
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+
+            DataContext context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+            await context.Database.EnsureCreatedAsync();
+
+            IOpenIddictApplicationManager manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+
+            object? client = await manager.FindByClientIdAsync("oidc-debugger");
+            if (client is not null)
+            {
+                await manager.DeleteAsync(client);
+            }
+
+            await manager.CreateAsync(new OpenIddictApplicationDescriptor
+            {
+                ClientId = "oidc-debugger",
+                ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+                ConsentType = ConsentTypes.Explicit,
+                DisplayName = "Postman client application",
+                RedirectUris =
+         {
+            new Uri("https://oidcdebugger.com/debug")
+         },
+                PostLogoutRedirectUris =
+         {
+            new Uri("https://oauth.pstmn.io/v1/callback")
+         },
+                Permissions =
+         {
+            Permissions.Endpoints.Authorization,
+            Permissions.Endpoints.Logout,
+            Permissions.Endpoints.Token,
+            Permissions.GrantTypes.AuthorizationCode,
+            Permissions.ResponseTypes.Code,
+            Permissions.Scopes.Email,
+            Permissions.Scopes.Profile,
+            Permissions.Scopes.Roles,
+            $"{Permissions.Prefixes.Scope}api1"
+         },
                 //Requirements =
                 //{
                 //    Requirements.Features.ProofKeyForCodeExchange
