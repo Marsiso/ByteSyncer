@@ -20,6 +20,7 @@ namespace ByteSyncer.IdentityProvider.Pages
             _mediator = mediator;
         }
 
+        [BindProperty]
         public string? ReturnUrl { get; set; }
 
         [BindProperty]
@@ -27,8 +28,11 @@ namespace ByteSyncer.IdentityProvider.Pages
 
         public EntityValidationException? ValidationException { get; set; }
 
-        public void OnGet()
+        public IActionResult OnGet(string? returnUrl)
         {
+            ReturnUrl = returnUrl;
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostRegisterAsync()

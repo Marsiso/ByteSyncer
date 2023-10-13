@@ -14,7 +14,7 @@ namespace ByteSyncer.IdentityProvider.Pages
         [BindProperty]
         public string? ReturnUrl { get; set; }
 
-        public IActionResult OnGet(string returnUrl)
+        public IActionResult OnGet(string? returnUrl)
         {
             ReturnUrl = returnUrl;
 

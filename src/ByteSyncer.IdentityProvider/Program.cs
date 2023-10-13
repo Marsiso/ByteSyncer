@@ -22,9 +22,9 @@ services.AddControllers();
 services.AddRazorPages();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        .AddCookie(c =>
+        .AddCookie(options =>
         {
-            c.LoginPath = "/";
+            options.LoginPath = "/Index";
         });
 
 services.AddOpenIddict()

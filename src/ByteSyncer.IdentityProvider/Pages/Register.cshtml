@@ -7,6 +7,7 @@
 
 <div>
     <form method="post" asp-page-handler="Register" data-abide novalidate>
+        <input type="hidden" asp-for="ReturnUrl" />
         <div class="grid-x grid-margin-x">
             <div class="cell small-12">
                 @if (Model.HasValidationErrors(nameof(Model.Form.Email)))
@@ -115,22 +116,22 @@
                 <a href="/Index" class="button expanded secondary">Přihlásit se</a>
             </fieldset>
         </div>
-        <div class="grid-x grid-margin-x">
-            <div class="cell small-12">
-                <div class="button-group">
-                    <form method="post" asp-page-handler="SetCulture">
-                        <input type="hidden" name="culture" value="cs" />
-                        <input type="hidden" name="redirectUri" value="@Model.ReturnUrl" />
-                        <button type="submit" class="button-link">Czech</button>
-                    </form>
-                    <span>&nbsp;|&nbsp;</span>
-                    <form method="post" asp-page-handler="SetCulture">
-                        <input type="hidden" name="culture" value="en" />
-                        <input type="hidden" name="redirectUri" value="@Model.ReturnUrl" />
-                        <button type="submit" class="button-link">English</button>
-                    </form>
-                </div>
+    </form>
+    <div class="grid-x grid-margin-x">
+        <div class="cell small-12">
+            <div class="button-group">
+                <form method="post" asp-page-handler="SetCulture">
+                    <input type="hidden" name="culture" value="cs" />
+                    <input type="hidden" name="redirectUri" value="@Model.ReturnUrl" />
+                    <button type="submit" class="button-link">Czech</button>
+                </form>
+                <span>&nbsp;|&nbsp;</span>
+                <form method="post" asp-page-handler="SetCulture">
+                    <input type="hidden" name="culture" value="en" />
+                    <input type="hidden" name="redirectUri" value="@Model.ReturnUrl" />
+                    <button type="submit" class="button-link">English</button>
+                </form>
             </div>
         </div>
-    </form>
+    </div>
 </div>
