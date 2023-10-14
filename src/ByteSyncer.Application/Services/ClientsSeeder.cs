@@ -77,16 +77,17 @@ namespace ByteSyncer.Application.Services
                    Permissions.Endpoints.Logout,
                    Permissions.Endpoints.Token,
                    Permissions.GrantTypes.AuthorizationCode,
+                   Permissions.GrantTypes.RefreshToken,
                    Permissions.ResponseTypes.Code,
                    Permissions.Scopes.Email,
                    Permissions.Scopes.Profile,
                    Permissions.Scopes.Roles,
                    $"{Permissions.Prefixes.Scope}api1"
                 },
-                //Requirements =
-                //{
-                //    Requirements.Features.ProofKeyForCodeExchange
-                //}
+                Requirements =
+                {
+                    Requirements.Features.ProofKeyForCodeExchange
+                }
             });
         }
 
@@ -127,15 +128,16 @@ namespace ByteSyncer.Application.Services
                     Permissions.Endpoints.Token,
                     Permissions.GrantTypes.AuthorizationCode,
                     Permissions.ResponseTypes.Code,
+                    Permissions.GrantTypes.RefreshToken,
                     Permissions.Scopes.Email,
                     Permissions.Scopes.Profile,
                     Permissions.Scopes.Roles,
                     $"{Permissions.Prefixes.Scope}api1"
                  },
-                //Requirements =
-                //{
-                //    Requirements.Features.ProofKeyForCodeExchange
-                //}
+                Requirements =
+                {
+                    Requirements.Features.ProofKeyForCodeExchange
+                }
             });
         }
     }

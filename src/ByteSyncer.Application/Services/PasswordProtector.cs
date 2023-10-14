@@ -38,10 +38,7 @@ namespace ByteSyncer.Application.Services
                 Options.MemoryLimit,
                 (int)Options.Algorithm);
 
-            if (result != 0)
-            {
-                throw new Exception();
-            }
+            Guard.Equals(result, 0);
 
             return (Convert.ToBase64String(keyBytes), Convert.ToBase64String(saltBytes));
         }
@@ -69,10 +66,7 @@ namespace ByteSyncer.Application.Services
                 Options.MemoryLimit,
                 (int)Options.Algorithm);
 
-            if (result != 0)
-            {
-                throw new Exception();
-            }
+            Guard.Equals(result, 0);
 
             return CryptographicOperations.FixedTimeEquals(keyBytes, originalKeyBytes);
         }

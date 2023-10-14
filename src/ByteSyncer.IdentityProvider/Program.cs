@@ -44,7 +44,9 @@ services.AddOpenIddict()
 
             options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
 
-            options.AllowAuthorizationCodeFlow();
+            options.AllowAuthorizationCodeFlow()
+                   .RequireProofKeyForCodeExchange()
+                   .AllowRefreshTokenFlow();
 
             byte[] keyBytes = Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=");
             SymmetricSecurityKey symmetricSecurityKey = new SymmetricSecurityKey(keyBytes);
