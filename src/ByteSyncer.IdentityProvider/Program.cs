@@ -87,7 +87,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("https://localhost:7183")
+        policy.WithOrigins("https://localhost:7061")
               .AllowAnyHeader();
     });
 });
@@ -96,13 +96,13 @@ WebApplication application = builder.Build();
 
 application.UseMigrations();
 
-using (IServiceScope scope = application.Services.CreateScope())
+using (IServiceScope serviceScope = application.Services.CreateScope())
 {
-    ClientsSeeder seeder = scope.ServiceProvider.GetRequiredService<ClientsSeeder>();
+    ClientsSeeder clientsSeeder = serviceScope.ServiceProvider.GetRequiredService<ClientsSeeder>();
 
-    seeder.AddOIDCDebuggerClient().GetAwaiter().GetResult();
-    seeder.AddWebClients().GetAwaiter().GetResult();
-    seeder.AddScopes().GetAwaiter().GetResult();
+    clientsSeeder.AddOidcDebuggerClient().GetAwaiter().GetResult();
+    clientsSeeder.AddWebClients().GetAwaiter().GetResult();
+    clientsSeeder.AddScopes().GetAwaiter().GetResult();
 }
 
 if (environment.IsDevelopment())

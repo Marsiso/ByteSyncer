@@ -1,4 +1,5 @@
 ﻿using ByteSyncer.Data.EF;
+using ByteSyncer.Domain.Constants;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -17,81 +18,73 @@ namespace ByteSyncer.Application.Services
         public async Task AddScopes()
         {
 
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            await using AsyncServiceScope serviceScope = _serviceProvider.CreateAsyncScope();
 
-            IOpenIddictScopeManager manager = scope.ServiceProvider.GetRequiredService<IOpenIddictScopeManager>();
+            IOpenIddictScopeManager oidcScopeManager = serviceScope.ServiceProvider.GetRequiredService<IOpenIddictScopeManager>();
 
-            object? apiScope = await manager.FindByNameAsync("api1");
+            object? resourceApiScope = await oidcScopeManager.FindByNameAsync(AuthorizationDefaults.ApiScopeNaming);
 
-            if (apiScope is not null)
+            if (resourceApiScope is not null)
             {
-                await manager.DeleteAsync(apiScope);
+                await oidcScopeManager.DeleteAsync(resourceApiScope);
             }
 
-            await manager.CreateAsync(new OpenIddictScopeDescriptor
+            OpenIddictScopeDescriptor resourceApiScopeDescriptor = new OpenIddictScopeDescriptor
             {
-                DisplayName = "Api scope",
-                Name = "api1",
-                Resources =
-                {
-                   "resource_server_1"
-                }
-            });
+                DisplayName = AuthorizationDefaults.ApiScopeFriendlyNaming,
+                Name = AuthorizationDefaults.ApiScopeNaming,
+                Resources = { AuthorizationDefaults.ApiResourceValue }
+            };
+
+            await oidcScopeManager.CreateAsync(resourceApiScopeDescriptor);
         }
 
         public async Task AddWebClients()
         {
 
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+            await using AsyncServiceScope serviceScope = _serviceProvider.CreateAsyncScope();
 
-            DataContext context = scope.ServiceProvider.GetRequiredService<DataContext>();
+            DataContext databaseContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
 
-            await context.Database.EnsureCreatedAsync();
+            await databaseContext.Database.EnsureCreatedAsync();
 
-            IOpenIddictApplicationManager manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+            IOpenIddictApplicationManager oidcApplicationManager = serviceScope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
-            object? client = await manager.FindByClientIdAsync("web-client");
+            object? client = await oidcApplicationManager.FindByClientIdAsync(AuthorizationDefaults.WebClientID);
 
             if (client is not null)
             {
-                await manager.DeleteAsync(client);
+                await oidcApplicationManager.DeleteAsync(client);
             }
 
-            await manager.CreateAsync(new OpenIddictApplicationDescriptor
+            var oidcWebApplicationDescriptor = new OpenIddictApplicationDescriptor
             {
-                ClientId = "web-client",
-                ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+                ClientId = AuthorizationDefaults.WebClientID,
+                ClientSecret = AuthorizationDefaults.DevelopmentClientSecretValue,
                 ConsentType = ConsentTypes.Explicit,
-                DisplayName = "Postman client application",
-                RedirectUris =
-                {
-                   new Uri("https://localhost:7183/swagger/oauth2-redirect.html")
-                },
-                PostLogoutRedirectUris =
-                {
-                   new Uri("https://localhost:7183/swagger")
-                },
+                DisplayName = "Web client application",
+                RedirectUris = { new Uri("https://localhost:7061/swagger/oauth2-redirect.html") },
+                PostLogoutRedirectUris = { new Uri("https://localhost:7061/swagger") },
                 Permissions =
                 {
-                   Permissions.Endpoints.Authorization,
-                   Permissions.Endpoints.Logout,
-                   Permissions.Endpoints.Token,
-                   Permissions.GrantTypes.AuthorizationCode,
-                   Permissions.GrantTypes.RefreshToken,
-                   Permissions.ResponseTypes.Code,
-                   Permissions.Scopes.Email,
-                   Permissions.Scopes.Profile,
-                   Permissions.Scopes.Roles,
-                   $"{Permissions.Prefixes.Scope}api1"
+                    Permissions.Endpoints.Authorization,
+                    Permissions.Endpoints.Logout,
+                    Permissions.Endpoints.Token,
+                    Permissions.GrantTypes.AuthorizationCode,
+                    Permissions.GrantTypes.RefreshToken,
+                    Permissions.ResponseTypes.Code,
+                    Permissions.Scopes.Email,
+                    Permissions.Scopes.Profile,
+                    Permissions.Scopes.Roles,
+                    $"{Permissions.Prefixes.Scope}{AuthorizationDefaults.ApiScopeNaming}"
                 },
-                Requirements =
-                {
-                    Requirements.Features.ProofKeyForCodeExchange
-                }
-            });
+                Requirements = { Requirements.Features.ProofKeyForCodeExchange }
+            };
+
+            await oidcApplicationManager.CreateAsync(oidcWebApplicationDescriptor);
         }
 
-        public async Task AddOIDCDebuggerClient()
+        public async Task AddOidcDebuggerClient()
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
 
@@ -101,28 +94,22 @@ namespace ByteSyncer.Application.Services
 
             IOpenIddictApplicationManager manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
-            object? client = await manager.FindByClientIdAsync("oidc-debugger");
+            object? client = await manager.FindByClientIdAsync(AuthorizationDefaults.OidcDebuggerClientID);
             if (client is not null)
             {
                 await manager.DeleteAsync(client);
             }
 
-            await manager.CreateAsync(new OpenIddictApplicationDescriptor
+            OpenIddictApplicationDescriptor oidcDebuggerApplicationDescriptor = new OpenIddictApplicationDescriptor
             {
-                ClientId = "oidc-debugger",
-                ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+                ClientId = AuthorizationDefaults.OidcDebuggerClientID,
+                ClientSecret = AuthorizationDefaults.DevelopmentClientSecretValue,
                 ConsentType = ConsentTypes.Explicit,
-                DisplayName = "Postman client application",
-                RedirectUris =
-                 {
-                    new Uri("https://oidcdebugger.com/debug")
-                 },
-                PostLogoutRedirectUris =
-                 {
-                    new Uri("https://oauth.pstmn.io/v1/callback")
-                 },
+                DisplayName = "OpenID Connect debugger client application",
+                RedirectUris = { new Uri("https://oidcdebugger.com/debug") },
+                PostLogoutRedirectUris = { new Uri("https://oauth.pstmn.io/v1/callback") },
                 Permissions =
-                 {
+                {
                     Permissions.Endpoints.Authorization,
                     Permissions.Endpoints.Logout,
                     Permissions.Endpoints.Token,
@@ -132,13 +119,12 @@ namespace ByteSyncer.Application.Services
                     Permissions.Scopes.Email,
                     Permissions.Scopes.Profile,
                     Permissions.Scopes.Roles,
-                    $"{Permissions.Prefixes.Scope}api1"
-                 },
-                Requirements =
-                {
-                    Requirements.Features.ProofKeyForCodeExchange
-                }
-            });
+                    $"{Permissions.Prefixes.Scope}{AuthorizationDefaults.ApiScopeNaming}"
+                },
+                Requirements = { Requirements.Features.ProofKeyForCodeExchange }
+            };
+
+            await manager.CreateAsync(oidcDebuggerApplicationDescriptor);
         }
     }
 }

@@ -13,11 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.Application", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.IdentityProvider", "src\ByteSyncer.IdentityProvider\ByteSyncer.IdentityProvider.csproj", "{F9BF9920-E98F-4354-A615-AC0DA215BDBF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByteSyncer.Web", "src\ByteSyncer.Web\ByteSyncer.Web.csproj", "{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E344B06D-5E44-4AD1-A8F2-210FB01C6107}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteSyncer.Application.Tests", "tests\ByteSyncer.Application.Tests\ByteSyncer.Application.Tests.csproj", "{247CA413-2EE5-4192-A3FD-CF2AAFA5D1C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteSyncer.Server", "src\ByteSyncer.Server\ByteSyncer.Server.csproj", "{6C492936-7CD1-4CF7-A927-A0BD79B91D73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteSyncer.Client", "src\ByteSyncer.Client\ByteSyncer.Client.csproj", "{3D013770-16D0-40AB-8F00-9329E92C9F6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,14 +47,18 @@ Global
 		{F9BF9920-E98F-4354-A615-AC0DA215BDBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9BF9920-E98F-4354-A615-AC0DA215BDBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9BF9920-E98F-4354-A615-AC0DA215BDBF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BCE5A19B-E4C9-4041-813E-53EBA3CB87CF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{247CA413-2EE5-4192-A3FD-CF2AAFA5D1C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{247CA413-2EE5-4192-A3FD-CF2AAFA5D1C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{247CA413-2EE5-4192-A3FD-CF2AAFA5D1C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{247CA413-2EE5-4192-A3FD-CF2AAFA5D1C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C492936-7CD1-4CF7-A927-A0BD79B91D73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C492936-7CD1-4CF7-A927-A0BD79B91D73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C492936-7CD1-4CF7-A927-A0BD79B91D73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C492936-7CD1-4CF7-A927-A0BD79B91D73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D013770-16D0-40AB-8F00-9329E92C9F6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D013770-16D0-40AB-8F00-9329E92C9F6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D013770-16D0-40AB-8F00-9329E92C9F6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D013770-16D0-40AB-8F00-9329E92C9F6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

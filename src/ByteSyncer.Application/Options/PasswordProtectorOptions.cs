@@ -9,7 +9,7 @@ namespace ByteSyncer.Application.Options
         public required string? Pepper { get; set; }
 
         /// <summary>
-        ///     Defaults to 16B.
+        ///     Defaults to 16 B.
         /// </summary>
         public required int SaltSize { get; set; } = 16;
 
@@ -27,7 +27,7 @@ namespace ByteSyncer.Application.Options
         public required long OperationsLimit { get; set; } = 4;
 
         /// <summary>
-        ///     Memlimit is the maximum amount of RAM in bytes that the function will use.
+        ///     Memory limit is the maximum amount of RAM in bytes that the function will use.
         ///     This number must be between crypto_pwhash_MEMLIMIT_MIN and crypto_pwhash_MEMLIMIT_MAX.
         ///     Defaults to 128 MiB.
         /// </summary>

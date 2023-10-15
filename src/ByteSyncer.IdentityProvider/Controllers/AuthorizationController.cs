@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Net.Mime;
 using System.Security.Claims;
 using System.Web;
 using ByteSyncer.Application.Services;
@@ -44,13 +45,15 @@ namespace ByteSyncer.IdentityProvider.Controllers
 
         [HttpGet("~/connect/authorize")]
         [HttpPost("~/connect/authorize")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Authorize(CancellationToken cancellationToken)
         {
             OpenIddictRequest request = HttpContext.GetOpenIddictServerRequest() ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
-            object application = await _applicationManager.FindByClientIdAsync(request.ClientId) ?? throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
+            object application = await _applicationManager.FindByClientIdAsync(request.ClientId, cancellationToken) ?? throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
 
-            if (await _applicationManager.GetConsentTypeAsync(application) != ConsentTypes.Explicit)
+            if (await _applicationManager.GetConsentTypeAsync(application, cancellationToken) != ConsentTypes.Explicit)
             {
                 Dictionary<string, string?> authenticationPropertyDictionary = new Dictionary<string, string?>
                 {
@@ -77,7 +80,7 @@ namespace ByteSyncer.IdentityProvider.Controllers
                 }, new[] { CookieAuthenticationDefaults.AuthenticationScheme });
             }
 
-            string? consentType = await _applicationManager.GetConsentTypeAsync(application);
+            string? consentType = await _applicationManager.GetConsentTypeAsync(application, cancellationToken);
 
             if (request.HasPrompt(Prompts.Login))
             {
@@ -138,7 +141,8 @@ namespace ByteSyncer.IdentityProvider.Controllers
                 roleType: Claims.Role);
 
             ImmutableArray<string> scopes = request.GetScopes();
-            List<string> resources = await _scopeManager.ListResourcesAsync(scopes).ToListAsync();
+            List<string> resources = await _scopeManager.ListResourcesAsync(scopes, cancellationToken)
+                                                        .ToListAsync(cancellationToken: cancellationToken);
 
             User user = queryResult.GetResult();
 
@@ -158,6 +162,9 @@ namespace ByteSyncer.IdentityProvider.Controllers
         }
 
         [HttpPost("~/connect/token")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Exchange(CancellationToken cancellationToken)
         {
             OpenIddictRequest request = HttpContext.GetOpenIddictServerRequest() ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
@@ -228,6 +235,7 @@ namespace ByteSyncer.IdentityProvider.Controllers
         }
 
         [HttpPost("~/connect/logout")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> LogoutPost()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -243,6 +251,10 @@ namespace ByteSyncer.IdentityProvider.Controllers
         [Authorize(AuthenticationSchemes = OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)]
         [HttpGet("~/connect/userinfo")]
         [HttpPost("~/connect/userinfo")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Userinfo(CancellationToken cancellationToken)
         {
             string? email = User.GetClaim(Claims.Email);

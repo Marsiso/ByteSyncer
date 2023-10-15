@@ -28,22 +28,22 @@ namespace ByteSyncer.Application.Services
             Guard.IsGreaterThanOrEqualTo(Options.Cycles, 0);
         }
 
-        public ReadOnlySpan<byte> DeriveKeyFromPassword(string value)
+        public ReadOnlySpan<byte> DeriveKeyFromPassword(string stringValue)
         {
-            Guard.IsNotNullOrWhiteSpace(value);
+            Guard.IsNotNullOrWhiteSpace(stringValue);
 
-            string pepperWithValue = value + Options.Pepper;
+            string stringValueWithPepper = stringValue + Options.Pepper;
 
-            Span<byte> pepperWithValueBytes = stackalloc byte[pepperWithValue.Length];
+            Span<byte> stringWithPepperBytes = stackalloc byte[stringValueWithPepper.Length];
 
-            Encoding.UTF8.GetBytes(pepperWithValue, pepperWithValueBytes);
+            Encoding.UTF8.GetBytes(stringValueWithPepper, stringWithPepperBytes);
 
             Span<byte> emptySaltBytes = Array.Empty<byte>();
-            Span<byte> keyBytes = stackalloc byte[Options.KeySize];
+            Span<byte> derivedKeyBytes = stackalloc byte[Options.KeySize];
 
-            Rfc2898DeriveBytes.Pbkdf2(pepperWithValueBytes, emptySaltBytes, keyBytes, Options.Cycles, HashAlgorithmName.SHA512);
+            Rfc2898DeriveBytes.Pbkdf2(stringWithPepperBytes, emptySaltBytes, derivedKeyBytes, Options.Cycles, HashAlgorithmName.SHA512);
 
-            return keyBytes.ToArray();
+            return derivedKeyBytes.ToArray();
         }
 
         public async Task<byte[]> Encrypt(string value, string passphrase)
@@ -57,39 +57,39 @@ namespace ByteSyncer.Application.Services
             aes.IV = IV;
 
             using MemoryStream memoryStream = new();
-            using CryptoStream cryptoStream = new(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            await using CryptoStream cryptoStream = new(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write);
 
             await cryptoStream.WriteAsync(Encoding.Unicode.GetBytes(value));
             await cryptoStream.FlushFinalBlockAsync();
 
-            byte[] secureStringBytes = memoryStream.ToArray();
+            byte[] encryptedStringValueBytes = memoryStream.ToArray();
 
-            return secureStringBytes;
+            return encryptedStringValueBytes;
         }
 
-        public async Task<string> EncryptThenEncodeToBase64(string value, string passphrase)
+        public async Task<string> EncryptThenEncodeToBase64(string stringValue, string passphrase)
         {
-            Guard.IsNotNullOrWhiteSpace(value);
+            Guard.IsNotNullOrWhiteSpace(stringValue);
             Guard.IsNotNullOrWhiteSpace(passphrase);
 
-            byte[] secureStringBytes = await Encrypt(value, passphrase);
+            byte[] encryptedStringValueBytes = await Encrypt(stringValue, passphrase);
 
-            string secureString = Convert.ToBase64String(secureStringBytes);
+            string encryptedStringValueBase64 = Convert.ToBase64String(encryptedStringValueBytes);
 
-            return secureString;
+            return encryptedStringValueBase64;
         }
 
-        public async Task<string> Decode(byte[] secureStringBytes, string passphrase)
+        public async Task<string> Decrypt(byte[] encodedStringValueBytes, string passphrase)
         {
-            Guard.IsNotEmpty(secureStringBytes);
+            Guard.IsNotEmpty(encodedStringValueBytes);
             Guard.IsNotNullOrWhiteSpace(passphrase);
 
             using Aes aes = Aes.Create();
             aes.Key = DeriveKeyFromPassword(passphrase).ToArray();
             aes.IV = IV;
 
-            using MemoryStream memoryStream = new(secureStringBytes);
-            using CryptoStream cryptoStream = new(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            using MemoryStream memoryStream = new(encodedStringValueBytes);
+            await using CryptoStream cryptoStream = new(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
 
             using MemoryStream memoryStreamCopy = new();
 
@@ -97,21 +97,21 @@ namespace ByteSyncer.Application.Services
 
             byte[] memoryStreamCopyBuffer = memoryStreamCopy.ToArray();
 
-            string value = Encoding.Unicode.GetString(memoryStreamCopyBuffer);
+            string decryptedStringValueBytes = Encoding.Unicode.GetString(memoryStreamCopyBuffer);
 
-            return value;
+            return decryptedStringValueBytes;
         }
 
-        public async Task<string> DecodeFromBase64ThenDecrypt(string secureString, string passphrase)
+        public async Task<string> DecodeFromBase64ThenDecrypt(string encodedStringValueBase64, string passphrase)
         {
-            Guard.IsNotNullOrWhiteSpace(secureString);
+            Guard.IsNotNullOrWhiteSpace(encodedStringValueBase64);
             Guard.IsNotNullOrWhiteSpace(passphrase);
 
-            byte[] secureStringBytes = Convert.FromBase64String(secureString);
+            byte[] decodedStringValueBytes = Convert.FromBase64String(encodedStringValueBase64);
 
-            string value = await Decode(secureStringBytes, passphrase);
+            string decryptedStringValue = await Decrypt(decodedStringValueBytes, passphrase);
 
-            return value;
+            return decryptedStringValue;
         }
     }
 }

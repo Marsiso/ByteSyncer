@@ -27,16 +27,16 @@ namespace ByteSyncer.IdentityProvider
             IServiceProvider services = application.Services;
             IWebHostEnvironment environment = application.Environment;
 
-            using IServiceScope scope = services.CreateScope();
+            using IServiceScope serviceScope = services.CreateScope();
 
-            DataContext context = scope.ServiceProvider.GetRequiredService<DataContext>();
+            DataContext databaseContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
 
             if (environment.IsDevelopment())
             {
-                context.Database.EnsureDeleted();
+                databaseContext.Database.EnsureDeleted();
             }
 
-            context.Database.EnsureCreated();
+            databaseContext.Database.EnsureCreated();
 
             return application;
         }
